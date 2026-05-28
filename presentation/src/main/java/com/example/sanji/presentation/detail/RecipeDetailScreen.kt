@@ -55,17 +55,19 @@ fun RecipeDetailScreen(
                 item {
                     // Nano Banana Living Dish Preview
                     Card(
-                        modifier = Modifier.fillMaxWidth().height(200.dp).padding(bottom = 24.dp),
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(bottom = 24.dp),
+                        shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         Box(contentAlignment = androidx.compose.ui.Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                Text("🍌 Nano Banana", style = MaterialTheme.typography.labelSmall)
-                                Text("LIVING DISH PREVIEW", style = MaterialTheme.typography.titleMedium)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Cinematic Motion: Zoom-In", style = MaterialTheme.typography.bodySmall)
+                                Text("🍌 NANO BANANA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                Text("LIVING DISH PREVIEW", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                                Spacer(modifier = Modifier.height(12.dp))
                                 // In a real app, this would be a VideoPlayer or AsyncImage for GIF
-                                Text("🥘✨ (Animated)", style = MaterialTheme.typography.displayMedium)
+                                Text("🥘✨", style = MaterialTheme.typography.displayLarge)
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text("CINEMATIC MOTION: ZOOM-IN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                             }
                         }
                     }
@@ -73,51 +75,59 @@ fun RecipeDetailScreen(
                 
                 item {
                     Text(
-                        text = "Ingredients",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        text = "INGREDIENTS",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
                 }
                 
                 items(recipe.ingredients) { ingredient ->
                     var isChecked by remember { mutableStateOf(false) }
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { isChecked = !isChecked },
+                        modifier = Modifier.fillMaxWidth().clickable { isChecked = !isChecked }.padding(vertical = 4.dp),
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                     ) {
-                        Checkbox(checked = isChecked, onCheckedChange = { isChecked = it })
+                        Checkbox(
+                            checked = isChecked, 
+                            onCheckedChange = { isChecked = it },
+                            colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
+                        )
                         Text(
                             text = ingredient,
+                            style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f),
                             textDecoration = if (isChecked) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                         )
                         IconButton(onClick = { viewModel.addIngredientToGrocery(recipe, ingredient) }) {
-                            Icon(androidx.compose.material.icons.filled.Add, contentDescription = "Add to grocery")
+                            Icon(
+                                imageVector = androidx.compose.material.icons.filled.Add, 
+                                contentDescription = "Add to grocery",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
                         }
                     }
                 }
                 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                     Button(
                         onClick = { recipe?.id?.let { onStartCooking(it) } },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = MaterialTheme.shapes.large,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                     ) {
-                        Text("START COOKING")
+                        Text("START THE SERVICE", style = MaterialTheme.typography.titleMedium, color = Color.White)
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                
-                items(recipe.instructions.withIndex().toList()) { (index, instruction) ->
-                    Text("${index + 1}. $instruction", modifier = Modifier.padding(bottom = 8.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
                 
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Preparation Time: ${recipe.prepTime}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        text = "INSTRUCTIONS",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
                 }
             }

@@ -25,22 +25,29 @@ fun ChefCompanionScreen(viewModel: ChefViewModel) {
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = "Chef Sanji",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
+            text = "CHEF SANJI",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = "SOUS CHEF OF THE BARATIE",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(bottom = 24.dp)
         )
         
         // Emotional Avatar Placeholder
         Box(
             modifier = Modifier
-                .size(120.dp)
+                .size(140.dp)
                 .clip(CircleShape)
                 .background(
                     when (state.emotionalState) {
                         "Mellorine" -> Color(0xFFFFB6C1)
-                        "Focused" -> Color(0xFFADD8E6)
-                        "Strict" -> Color(0xFFFF4500)
-                        else -> MaterialTheme.colorScheme.primaryContainer
+                        "Focused" -> MaterialTheme.colorScheme.primaryContainer
+                        "Strict" -> MaterialTheme.colorScheme.tertiary
+                        else -> MaterialTheme.colorScheme.secondaryContainer
                     }
                 )
                 .align(Alignment.CenterHorizontally),
@@ -57,27 +64,37 @@ fun ChefCompanionScreen(viewModel: ChefViewModel) {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Sanji's Response Bubble
         Card(
             modifier = Modifier.fillMaxWidth().weight(1f),
+            shape = MaterialTheme.shapes.medium,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
+            LazyColumn(modifier = Modifier.padding(20.dp)) {
                 item {
                     Text(
                         text = state.response,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
                 if (state.chefTips.isNotEmpty()) {
                     item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "Chef's Tips:", style = MaterialTheme.typography.labelLarge)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "CHEF'S WISDOM:", 
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         state.chefTips.forEach { tip ->
-                            Text(text = "• $tip", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                text = "• $tip", 
+                                style = MaterialTheme.typography.bodySmall,
+                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                            )
                         }
                     }
                 }

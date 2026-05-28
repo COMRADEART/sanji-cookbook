@@ -82,18 +82,20 @@ fun RecipeCard(
     onFavoriteClick: () -> Unit
 ) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
             // Placeholder for image
             Box(
-                modifier = Modifier.fillMaxWidth().height(120.dp).padding(8.dp),
+                modifier = Modifier.fillMaxWidth().height(140.dp).background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Text("🥘", style = MaterialTheme.typography.displayMedium)
             }
             
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -102,20 +104,21 @@ fun RecipeCard(
                     Text(
                         text = recipe.title,
                         style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = onFavoriteClick) {
                         Icon(
                             imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Toggle favorite",
-                            tint = if (recipe.isFavorite) Color.Red else Color.Gray
+                            tint = if (recipe.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.neutral
                         )
                     }
                 }
                 Text(
-                    text = recipe.prepTime,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = recipe.prepTime.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

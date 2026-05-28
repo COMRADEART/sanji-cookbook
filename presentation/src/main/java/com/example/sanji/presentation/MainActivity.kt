@@ -22,12 +22,14 @@ import com.example.sanji.presentation.search.SearchScreen
 import com.example.sanji.presentation.settings.SettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
+import com.example.sanji.presentation.theme.BaratieTheme
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            BaratieTheme {
                 MainScreen()
             }
         }

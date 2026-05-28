@@ -45,8 +45,16 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome to Sanji's Kitchen!",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "Sanji's Cookbook",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = "THE BLACK LEG KITCHEN",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
             
@@ -54,7 +62,7 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
             // For now, we use a placeholder icon/image
             Box(
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(220.dp)
                     .graphicsLayer(
                         translationY = translationY,
                         scaleX = scale,
@@ -70,15 +78,16 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                text = "Tap the dish to start!",
-                style = MaterialTheme.typography.bodyLarge
+                text = "TAP TO START THE SERVICE",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                modifier = Modifier.padding(16.dp).fillMaxWidth()
+                modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
