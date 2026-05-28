@@ -11,6 +11,7 @@ fun RecipeDto.toDomain(isFavorite: Boolean): Recipe {
         ingredients = ingredients,
         instructions = instructions,
         imageUrl = imageUrl,
+        livingImageUrl = null, // Backend will provide this dynamically
         prepTime = prepTime,
         category = category,
         tags = tags,

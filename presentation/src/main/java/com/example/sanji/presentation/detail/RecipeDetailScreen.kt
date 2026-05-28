@@ -51,6 +51,25 @@ fun RecipeDetailScreen(
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
+
+                item {
+                    // Nano Banana Living Dish Preview
+                    Card(
+                        modifier = Modifier.fillMaxWidth().height(200.dp).padding(bottom = 24.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                    ) {
+                        Box(contentAlignment = androidx.compose.ui.Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                Text("🍌 Nano Banana", style = MaterialTheme.typography.labelSmall)
+                                Text("LIVING DISH PREVIEW", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("Cinematic Motion: Zoom-In", style = MaterialTheme.typography.bodySmall)
+                                // In a real app, this would be a VideoPlayer or AsyncImage for GIF
+                                Text("🥘✨ (Animated)", style = MaterialTheme.typography.displayMedium)
+                            }
+                        }
+                    }
+                }
                 
                 item {
                     Text(

@@ -109,6 +109,40 @@ async def recognize_ingredients(file: UploadFile = File(...)):
     # TODO: Integrate with Gemini Vision
     return {"ingredients": ["Tomato", "Onion", "Shrimp"], "suggestion": "Baratie's Seafood Soup"}
 
+@app.post("/generate-living-dish")
+async def generate_living_dish(dish_name: str, motion_type: str = "zoom-in"):
+    """
+    Uses Nano Banana (Gemini 3.1 Flash Image) to generate a cinematic dish image with motion.
+    motion_type can be: zoom-in, zoom-out, pan-left, pan-right, orbital
+    """
+    try:
+        # Construct the cinematic prompt for Nano Banana
+        prompt = f"Cinematic shot of {dish_name} from One Piece, Baratie style, vibrant colors, steam rising, high detail, masterpiece. "
+        
+        # Add motion instruction (Nano Banana specific)
+        motion_prompt = {
+            "zoom-in": "Camera slowly zooms into the textures of the dish.",
+            "pan-right": "Cinematic side-scroll pan across the ingredients.",
+            "orbital": "Smooth 360 orbital reveal of the presentation."
+        }.get(motion_type, "Static cinematic shot.")
+        
+        full_prompt = f"{prompt} {motion_prompt}"
+        
+        # TODO: Call the actual Nano Banana / Gemini Image API
+        # Since this is a specialized model, we simulate the return of an animated URL (GIF or MP4)
+        # In a real setup, this would return the generated asset URL
+        
+        mock_video_url = f"https://generated-assets.ai/living-dishes/{dish_name.replace(' ', '_')}_{motion_type}.mp4"
+        
+        return {
+            "dish": dish_name,
+            "motion": motion_type,
+            "video_url": mock_video_url,
+            "style": "One Piece Anime Style"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
