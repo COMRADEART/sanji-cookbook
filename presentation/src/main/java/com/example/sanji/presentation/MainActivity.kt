@@ -45,6 +45,7 @@ fun MainScreen() {
     val items = listOf(
         Triple(Screen.Home, "Home", Icons.Default.Home),
         Triple(Screen.Search, "Search", Icons.Default.Search),
+        Triple(Screen.ChefCompanion, "Chef", Icons.Default.Person),
         Triple(Screen.GroceryList, "Grocery", Icons.Default.ShoppingCart),
         Triple(Screen.Favorites, "Favorites", Icons.Default.Favorite),
         Triple(Screen.Settings, "Settings", Icons.Default.Settings)
@@ -92,6 +93,10 @@ fun MainScreen() {
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
                     }
                 )
+            }
+            composable(Screen.ChefCompanion.route) {
+                val chefViewModel: com.example.sanji.presentation.chef.ChefViewModel = hiltViewModel()
+                com.example.sanji.presentation.chef.ChefCompanionScreen(viewModel = chefViewModel)
             }
             composable(Screen.Favorites.route) {
                 FavoritesScreen(
