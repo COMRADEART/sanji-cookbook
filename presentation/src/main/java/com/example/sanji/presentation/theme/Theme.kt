@@ -9,63 +9,66 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Baratie Heritage Colors
-val BaratieBlue = Color(0xFF0A2463)
-val BaratieGold = Color(0xFFFFD700)
-val BaratieRed = Color(0xFFFB3640)
-val KitchenWhite = Color(0xFFF8F9FA)
-val ProfessionalInk = Color(0xFF1D1E1F)
-val SteelGray = Color(0xFF6C757D)
+// Baratie Heritage V2 Luxurious Colors
+val MidnightAtlantic = Color(0xFF05163D)
+val MetallicGold = Color(0xFFD4AF37)
+val CrimsonPassion = Color(0xFFD72638)
+val PristineWhite = Color(0xFFFFFFFF)
+val StainlessGray = Color(0xFFF4F7F9)
+val ProfessionalInk = Color(0xFF0D0E10)
+val GlassWhite = Color(0xB3FFFFFF) // 70% opacity for glassmorphism
 
 private val LightColorScheme = lightColorScheme(
-    primary = BaratieBlue,
+    primary = MidnightAtlantic,
     onPrimary = Color.White,
-    secondary = BaratieGold,
+    secondary = MetallicGold,
     onSecondary = ProfessionalInk,
-    tertiary = BaratieRed,
-    surface = KitchenWhite,
+    tertiary = CrimsonPassion,
+    surface = PristineWhite,
     onSurface = ProfessionalInk,
-    background = KitchenWhite,
+    background = StainlessGray,
     onBackground = ProfessionalInk,
-    secondaryContainer = Color(0xFFE5E7EB), // Light gray for previews
-    tertiaryContainer = Color(0xFFFFEBEE)   // Soft red for tips
+    secondaryContainer = Color(0xFFE5E7EB),
+    tertiaryContainer = GlassWhite
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BaratieGold, // Invert for dark mode
+    primary = MetallicGold,
     onPrimary = ProfessionalInk,
-    secondary = BaratieBlue,
+    secondary = MidnightAtlantic,
     onSecondary = Color.White,
-    tertiary = BaratieRed,
-    surface = Color(0xFF121212),
-    onSurface = KitchenWhite
+    tertiary = CrimsonPassion,
+    surface = Color(0xFF0D0E10),
+    onSurface = PristineWhite
 )
 
 val BaratieTypography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = FontFamily.Serif, // Placeholder for Playfair Display
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp
+        fontFamily = FontFamily.Serif, // Playfair Display equivalent
+        fontWeight = FontWeight.Black,
+        fontSize = 42.sp,
+        lineHeight = 48.sp,
+        letterSpacing = (-0.5).sp
     ),
     titleMedium = TextStyle(
-        fontFamily = FontFamily.SansSerif, // Placeholder for Montserrat
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        lineHeight = 24.sp
+        fontFamily = FontFamily.SansSerif, // Montserrat equivalent
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 1.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily.Default, // Placeholder for Inter
+        fontFamily = FontFamily.Default, // Inter equivalent
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
+        fontSize = 18.sp,
+        lineHeight = 30.sp // Luxurious 1.6x line height
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Bold,
+        fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 1.sp
     )
 )
 

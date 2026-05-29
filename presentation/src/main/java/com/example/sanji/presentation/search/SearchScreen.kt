@@ -1,6 +1,7 @@
 package com.example.sanji.presentation.search
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -111,7 +112,7 @@ fun RecipeCard(
                         Icon(
                             imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Toggle favorite",
-                            tint = if (recipe.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.neutral
+                            tint = if (recipe.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

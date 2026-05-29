@@ -57,12 +57,23 @@ fun MainScreen() {
         bottomBar = {
             if (currentDestination?.route != Screen.Home.route && 
                 currentDestination?.route?.contains("cook_mode") == false) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    tonalElevation = 8.dp
+                ) {
                     items.forEach { (screen, label, icon) ->
                         NavigationBarItem(
                             icon = { Icon(icon, contentDescription = label) },
-                            label = { Text(label) },
+                            label = { Text(label, style = MaterialTheme.typography.labelSmall) },
                             selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.secondary,
+                                selectedTextColor = MaterialTheme.colorScheme.secondary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                                unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                                indicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f)
+                            ),
                             onClick = {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
@@ -77,7 +88,8 @@ fun MainScreen() {
                 }
             }
         }
-    ) { innerPadding ->
+    )
+ { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,

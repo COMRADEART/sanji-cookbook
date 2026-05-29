@@ -17,89 +17,118 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.sanji.presentation.navigation.Screen
 
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontStyle
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChefCompanionScreen(viewModel: ChefViewModel) {
     val state by viewModel.state.collectAsState()
     var messageText by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = "CHEF SANJI",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Text(
-            text = "SOUS CHEF OF THE BARATIE",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-        
-        // Emotional Avatar Placeholder
-        Box(
-            modifier = Modifier
-                .size(140.dp)
-                .clip(CircleShape)
-                .background(
-                    when (state.emotionalState) {
-                        "Mellorine" -> Color(0xFFFFB6C1)
-                        "Focused" -> MaterialTheme.colorScheme.primaryContainer
-                        "Strict" -> MaterialTheme.colorScheme.tertiary
-                        else -> MaterialTheme.colorScheme.secondaryContainer
-                    }
-                )
-                .align(Alignment.CenterHorizontally),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = when (state.emotionalState) {
-                    "Mellorine" -> "😍"
-                    "Focused" -> "👨‍🍳"
-                    "Strict" -> "😠"
-                    else -> "🔥"
-                },
-                style = MaterialTheme.typography.displayLarge
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Sanji's Response Bubble
-        Card(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            shape = MaterialTheme.shapes.medium,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            LazyColumn(modifier = Modifier.padding(20.dp)) {
-                item {
-                    Text(
-                        text = state.response,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.03f)
                     )
-                }
-                
-                if (state.chefTips.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "CHEF'S WISDOM:", 
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
+                )
+            )
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+            Text(
+                text = "CHEF SANJI",
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "SOUS CHEF OF THE BARATIE • STANDING BY",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+            
+            // Premium Emotional Avatar
+            Box(
+                modifier = Modifier
+                    .size(160.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.sweepGradient(
+                            colors = when (state.emotionalState) {
+                                "Mellorine" -> listOf(Color(0xFFFFB6C1), Color(0xFFFF69B4), Color(0xFFFFB6C1))
+                                "Focused" -> listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary)
+                                "Strict" -> listOf(MaterialTheme.colorScheme.tertiary, Color.Black, MaterialTheme.colorScheme.tertiary)
+                                else -> listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                            }
                         )
-                        state.chefTips.forEach { tip ->
+                    )
+                    .padding(4.dp) // Border thickness
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = when (state.emotionalState) {
+                        "Mellorine" -> "😍"
+                        "Focused" -> "👨‍🍳"
+                        "Strict" -> "😠"
+                        else -> "🔥"
+                    },
+                    style = MaterialTheme.typography.displayLarge.copy(fontSize = 64.sp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Glassmorphism Response Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                LazyColumn(modifier = Modifier.padding(28.dp)) {
+                    item {
+                        Text(
+                            text = state.response,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            lineHeight = 32.sp
+                        )
+                    }
+                    
+                    if (state.chefTips.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                            Spacer(modifier = Modifier.height(24.dp))
                             Text(
-                                text = "• $tip", 
-                                style = MaterialTheme.typography.bodySmall,
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                text = "CHEF'S WISDOM", 
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                letterSpacing = 2.sp
                             )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            state.chefTips.forEach { tip ->
+                                Text(
+                                    text = "• $tip", 
+                                    style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

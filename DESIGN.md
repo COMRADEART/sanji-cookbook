@@ -1,83 +1,81 @@
 ---
 version: alpha
-name: Baratie Heritage
-description: A high-fidelity design system for Sanji's AI Chef Companion, blending nautical elegance with professional culinary precision.
+name: Baratie Heritage V2
+description: A premium, AI-native design system generated via Google Stitch paradigms. It blends "Nautical Luxury" with "Sous Chef Discipline."
 colors:
-  primary: "#0A2463"    # Nautical Deep Blue
-  secondary: "#FFD700"  # Golden Baratie Accents
-  tertiary: "#FB3640"   # Chef's Passion Red
-  surface: "#F8F9FA"    # Clean Kitchen White
-  on-surface: "#1D1E1F" # Professional Ink
-  neutral: "#6C757D"    # Stainless Steel Gray
+  primary: "#05163D"    # Midnight Atlantic (Slightly deeper, more luxurious)
+  secondary: "#D4AF37"  # Metallic Baratie Gold (Sophisticated texture)
+  tertiary: "#D72638"   # Crimson Passion (Refined high-action red)
+  surface: "#FFFFFF"    # Pristine Kitchen White
+  surface-dim: "#F4F7F9" # Soft Stainless Gray (For subtle depth)
+  on-surface: "#0D0E10" # Absolute Professional Ink
+  glass: "rgba(255, 255, 255, 0.7)" # Glassmorphism base
 typography:
-  headline-lg:
+  headline-display:
     fontFamily: Playfair Display
-    fontSize: 2.5rem
-    fontWeight: 700
-    lineHeight: 1.2
-  title-md:
+    fontSize: 3.25rem
+    fontWeight: 900
+    lineHeight: 1.1
+    letterSpacing: "-0.01em"
+  title-premium:
     fontFamily: Montserrat
-    fontSize: 1.25rem
-    fontWeight: 600
-  body-md:
+    fontSize: 1.5rem
+    fontWeight: 700
+    letterSpacing: "0.05em"
+  body-lux:
     fontFamily: Inter
-    fontSize: 1rem
-    lineHeight: 1.5
+    fontSize: 1.125rem
+    lineHeight: 1.6
 rounded:
-  sm: 4px
-  md: 12px
-  lg: 24px
-spacing:
-  xs: 4px
+  xs: 2px
   sm: 8px
   md: 16px
   lg: 32px
+  full: 9999px
+elevation:
+  soft: "0 4px 20px rgba(0, 0, 0, 0.05)"
+  deep: "0 10px 40px rgba(0, 0, 0, 0.12)"
+spacing:
+  comfortable: 24px
+  luxurious: 48px
 components:
-  recipe-card:
+  living-dish-card:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.md}"
-    padding: "{spacing.md}"
-  button-cook:
+    elevation: "{elevation.soft}"
+  button-action-pill:
     backgroundColor: "{colors.tertiary}"
     textColor: "#FFFFFF"
-    rounded: "{rounded.lg}"
-    padding: 16px
-  navigation-bar:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.secondary}"
+    rounded: "{rounded.full}"
+    padding: "16px 32px"
 ---
 
-## Overview
+## Overview: The "Baratie Vibe"
 
-The Baratie Heritage design system is built to reflect Vinsmoke Sanji's dual nature: the disciplined, high-end professional chef and the passionate, high-energy pirate. It emphasizes clarity during the cooking process while maintaining a premium, "One Piece" cinematic aesthetic.
+In V2, we transition from functional to **Cinematic**. The interface should feel like a high-end restaurant menu in the middle of a calm ocean. We use "Vibe Design" to ensure Sanji's personality permeates every pixel—sophisticated, disciplined, and slightly dramatic.
 
-## Colors
+## Colors: Nautical Luxury
 
-- **Nautical Deep Blue (#0A2463):** Represents the ocean and the Baratie's roots. Used for primary navigation and branding.
-- **Golden Accents (#FFD700):** Symbolizes the "Gold" in Baratie's legacy. Used for high-emphasis highlights and icons.
-- **Chef's Passion Red (#FB3640):** A vibrant red used for action buttons (like "Start Cooking") and emotional triggers.
+- **Midnight Atlantic (#05163D):** This is the color of the deep sea at night. It provides a luxurious, high-contrast anchor for the entire UI.
+- **Metallic Baratie Gold (#D4AF37):** Not just a color, but a symbol of the "Chef's Treasure." Use this sparingly for icons, highlights, and prestige elements.
+- **Crimson Passion (#D72638):** A more muted, professional red that signals "Action" without being overwhelming.
 
-## Typography
+## Typography: The High-End Menu
 
-We use **Playfair Display** for headlines to evoke a sense of high-end restaurant menus. **Montserrat** and **Inter** are used for titles and body text to ensure maximum readability in a busy kitchen environment.
+We lean into **Playfair Display (900)** for Display text to create a "Gourmet" feel. **Montserrat** is always uppercase for titles to signify professional discipline. **Inter** handles the heavy lifting of instruction reading with generous line height (`1.6`).
 
-## Layout
+## Layout: The Infinite Service
 
-The layout follows a "Grid-First" approach, optimized for both mobile viewing and tablet "countertop" use. Spacing is generous to prevent accidental taps when the user's hands are busy.
+The layout uses **Luxurious Spacing (48px)** for section headers and **Comfortable Spacing (24px)** for card internals. This ensures the user never feels rushed or cluttered while cooking.
 
-## Shapes
+## Components: Living Assets
 
-Rounding is a key element of the identity. Cards use a modern `12px` radius, while high-action items like the "Start Cooking" button use a pill-shaped `24px` radius for a friendly, approachable feel.
-
-## Components
-
-- **`recipe-card`**: Uses a clean surface with subtle elevation to make the AI-generated "Living Dish" previews pop.
-- **`button-cook`**: High-contrast red button designed to be the single most important action on any recipe screen.
-- **`navigation-bar`**: A deep blue anchor for the application, providing consistent access to Sanji's "Brain" and the kitchen tools.
+- **`living-dish-card`**: Designed to frame the **Nano Banana** motion assets. It uses a very soft shadow (`elevation.soft`) to feel like it's floating above the stainless steel kitchen surface.
+- **`button-action-pill`**: A full-pill shape that feels tactile and easy to hit in a messy kitchen.
 
 ## Do's and Don'ts
 
-- **DO** use dynamic motion for dish previews.
-- **DO** maintain high contrast between text and backgrounds for accessibility.
-- **DON'T** use cluttered layouts that make it hard to read instructions while cooking.
-- **DON'T** waste a single pixel of space on unnecessary decorations—every element should serve a purpose.
+- **DO** use subtle gradients and glassmorphism for "Floating" elements (like Sanji's chat bubbles).
+- **DO** describe "Smooth Motion" (parallaxes, fades) in every new UI task.
+- **DON'T** use sharp corners—everything should feel organic and fluid like the ocean.
+- **DON'T** use generic system fonts for branding; lean into the specific typography tokens.
