@@ -20,7 +20,8 @@ class RecipeViewModel @Inject constructor(
     private val getRecipesUseCase: GetRecipesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
-    private val searchRecipesUseCase: SearchRecipesUseCase
+    private val searchRecipesUseCase: SearchRecipesUseCase,
+    private val api: com.example.sanji.presentation.api.SanjiChefApi
 ) : ViewModel() {
 
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
@@ -116,20 +117,29 @@ class RecipeViewModel @Inject constructor(
         viewModelScope.launch {
             _livingDishStatus.value = "processing"
             
-            // 1. Call generate endpoint to get job_id
-            // Simulating API call
-            delay(1000)
-            val jobId = UUID.randomUUID().toString() 
-            
-            // 2. Poll for status (Simulated polling)
-            var progress = 0
-            while (progress < 100) {
-                delay(1500)
-                progress += 33
+            try {
+                // 1. Call generate endpoint to get job_id
+                val jobResponse = api.generateLivingDish(dishName, motion)
+                val jobId = jobResponse.job_id
+                
+                // 2. Poll for status
+                var completed = false
+                var attempts = 0
+                while (!completed && attempts < 20) {
+                    delay(2000)
+                    val statusResponse = api.getJobStatus(jobId)
+                    if (statusResponse.status == "completed") {
+                        val data = statusResponse.data
+                        _livingDishUrl.value = data?.get("video_url") as? String
+                        completed = true
+                    }
+                    attempts++
+                }
+                
+                _livingDishStatus.value = if (completed) "completed" else "failed"
+            } catch (e: Exception) {
+                _livingDishStatus.value = "failed"
             }
-            
-            _livingDishUrl.value = "https://generated-assets.ai/living-dishes/${dishName.replace(" ", "_")}_$motion.mp4"
-            _livingDishStatus.value = "completed"
         }
     }
 

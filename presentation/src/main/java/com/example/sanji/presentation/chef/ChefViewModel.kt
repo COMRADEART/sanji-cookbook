@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.sanji.presentation.api.SanjiChefApi
+import com.example.sanji.presentation.api.ChatRequest
 import javax.inject.Inject
 
 data class ChefUiState(
@@ -16,7 +18,9 @@ data class ChefUiState(
 )
 
 @HiltViewModel
-class ChefViewModel @Inject constructor() : ViewModel() {
+class ChefViewModel @Inject constructor(
+    private val api: SanjiChefApi
+) : ViewModel() {
     private val _state = MutableStateFlow(ChefUiState())
     val state: StateFlow<ChefUiState> = _state.asStateFlow()
 
@@ -24,15 +28,24 @@ class ChefViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(isProcessing = true) }
             
-            // TODO: Call Backend /chat endpoint
-            // For now, simulate Sanji's response
-            val mockResponse = "A brilliant choice! That ingredient deserves the utmost respect."
-            
-            _state.update { it.copy(
-                response = mockResponse,
-                isProcessing = false,
-                emotionalState = "Focused"
-            ) }
+            try {
+                val response = api.chat(ChatRequest(
+                    message = message,
+                    user_id = "user_123"
+                ))
+                
+                _state.update { it.copy(
+                    response = response.response,
+                    emotionalState = response.emotional_state,
+                    chefTips = response.chef_tips,
+                    isProcessing = false
+                ) }
+            } catch (e: Exception) {
+                _state.update { it.copy(
+                    response = "I'm sorry, I seem to have lost my train of thought! Shall we try again?",
+                    isProcessing = false
+                ) }
+            }
         }
     }
 

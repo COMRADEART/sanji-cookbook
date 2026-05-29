@@ -12,12 +12,43 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.example.sanji.presentation.api.SanjiChefApi
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
     @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        return OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSanjiChefApi(okHttpClient: OkHttpClient): SanjiChefApi {
+        // TODO: Replace with your actual computer's IP for physical device testing
+        val baseUrl = "http://10.0.2.2:8000/" 
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SanjiChefApi::class.java)
+    }
+
+    @Provides
+...
+
     @Singleton
     fun provideRecipeDatabase(@ApplicationContext context: Context): RecipeDatabase {
         return Room.databaseBuilder(
