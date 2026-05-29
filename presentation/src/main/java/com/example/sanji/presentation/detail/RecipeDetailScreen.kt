@@ -12,6 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.sanji.presentation.recipe.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
