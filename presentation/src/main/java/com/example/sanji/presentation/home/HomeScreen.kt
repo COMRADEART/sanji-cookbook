@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontStyle
 
 @Composable
 fun HomeScreen(onNavigateToSearch: () -> Unit) {
@@ -107,7 +108,7 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
                     .fillMaxWidth()
                     .height(64.dp)
                     .clickable { isServing = true },
-                shape = RoundedCornerShape(full = 9999.dp),
+                shape = RoundedCornerShape(9999.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 Box(

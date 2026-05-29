@@ -26,6 +26,15 @@ fun RecipeDetailScreen(
 ) {
     val recipes by viewModel.recipes.collectAsState()
     val recipe = recipes.find { it.id == recipeId }
+    val livingDishStatus by viewModel.livingDishStatus.collectAsState()
+    val livingDishUrl by viewModel.livingDishUrl.collectAsState()
+
+    // Trigger generation on launch if not already completed
+    LaunchedEffect(recipeId) {
+        if (recipe != null && livingDishStatus == null) {
+            viewModel.generateLivingDish(recipe.title)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -67,22 +76,37 @@ fun RecipeDetailScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 20.dp)
                     ) {
                         Box(contentAlignment = androidx.compose.ui.Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                            Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "🍌 NANO BANANA CINEMATICS", 
-                                    style = MaterialTheme.typography.labelSmall, 
-                                    color = MaterialTheme.colorScheme.primary,
-                                    letterSpacing = 3.sp
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                // In a real app, this would be a VideoPlayer or AsyncImage for GIF
-                                Text("🥘✨", style = MaterialTheme.typography.displayLarge.copy(fontSize = 90.sp))
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "DYNAMIC MOTION: ORBITAL REVEAL", 
-                                    style = MaterialTheme.typography.labelSmall, 
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
+                            if (livingDishStatus == "processing") {
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "SANJI IS PREPARING THE MASTERPIECE...", 
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            } else {
+                                Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "🍌 NANO BANANA CINEMATICS", 
+                                        style = MaterialTheme.typography.labelSmall, 
+                                        color = MaterialTheme.colorScheme.primary,
+                                        letterSpacing = 3.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    // In a real app, this would be a VideoPlayer or AsyncImage for GIF
+                                    Text(
+                                        text = if (livingDishStatus == "completed") "🥘✨" else "🍽️", 
+                                        style = MaterialTheme.typography.displayLarge.copy(fontSize = 90.sp)
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "DYNAMIC MOTION: ORBITAL REVEAL", 
+                                        style = MaterialTheme.typography.labelSmall, 
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
                         }
                     }
@@ -135,7 +159,7 @@ fun RecipeDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp),
-                        shape = RoundedCornerShape(full = 9999.dp),
+                        shape = RoundedCornerShape(9999.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB22222)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {

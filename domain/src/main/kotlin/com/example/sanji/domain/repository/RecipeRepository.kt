@@ -21,4 +21,7 @@ interface RecipeRepository {
     // Custom Recipes
     suspend fun addCustomRecipe(recipe: Recipe)
     fun observeCustomRecipes(): Flow<List<Recipe>>
+
+    // Health / Resilience
+    fun observeCloudStatus(): Flow<Boolean>
 }

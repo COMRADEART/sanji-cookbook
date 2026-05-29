@@ -2,13 +2,54 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel
 import whisper
 import os
+import json
+import redis.asyncio as redis
 from typing import List, Optional
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Google Cloud Monitoring & Logging
+import google.cloud.logging
+import googlecloudprofiler
+from google.cloud import pubsub_v1
+import uuid
+
+load_dotenv()
+
+# GCP Project Config
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "sanji-cookbook-ui")
+TOPIC_ID = "dish-generation-tasks"
+
+# Initialize Pub/Sub
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
+
+# Initialize Cloud Logging
+try:
+    logging_client = google.cloud.logging.Client()
+    logging_client.setup_logging()
+except Exception:
+    pass # Fallback to local logging if not in GCP
+
+# Initialize Cloud Profiler
+try:
+    googlecloudprofiler.start(service="sanji-chef-backend", service_version="1.0.0")
+except Exception:
+    pass
 
 app = FastAPI(title="Sanji AI Chef Companion API")
 
-# Load Whisper model (base for balance of speed/accuracy)
-# In production, this might be pre-loaded or run in a background worker
+# Initialize Redis
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+cache = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+# Load Whisper model
 whisper_model = whisper.load_model("base")
+
+# Configure Gemini
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-pro')
 
 class ChatRequest(BaseModel):
     message: str
@@ -23,15 +64,6 @@ class ChatResponse(BaseModel):
 @app.get("/")
 async def root():
     return {"status": "Sanji is in the kitchen!"}
-
-import google.generativeai as genai
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-pro')
 
 SANJI_SYSTEM_PROMPT = """
 You are Vinsmoke Sanji, the legendary "Black Leg" chef from the Baratie and the Straw Hat Pirates.
@@ -60,28 +92,38 @@ Return your response as a JSON object with:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
+    # Try to get from cache first
+    cache_key = f"chat:{request.user_id}:{request.message}"
     try:
-        # Construct the full prompt
+        cached_response = await cache.get(cache_key)
+        if cached_response:
+            return ChatResponse(**json.loads(cached_response))
+    except Exception:
+        pass # Redis might be down
+
+    try:
         full_prompt = f"{SANJI_SYSTEM_PROMPT}\n\nUser: {request.message}\nContext: {request.context}"
-        
-        # Call Gemini
         response = model.generate_content(full_prompt)
         
-        # Extract JSON from response (handling potential markdown blocks)
         content = response.text
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
         
-        import json
         data = json.loads(content)
-        
-        return ChatResponse(
+        chat_resp = ChatResponse(
             response=data.get("response", ""),
             emotional_state=data.get("emotional_state", "Passionate"),
             chef_tips=data.get("chef_tips", [])
         )
+
+        # Store in cache for 1 hour
+        try:
+            await cache.set(cache_key, json.dumps(chat_resp.dict()), ex=3600)
+        except Exception:
+            pass
+        
+        return chat_resp
     except Exception as e:
-        # Fallback if AI fails
         return ChatResponse(
             response="Forgive me, I got a bit distracted by the aroma! What were we cooking?",
             emotional_state="Passionate",
@@ -90,7 +132,6 @@ async def chat(request: ChatRequest):
 
 @app.post("/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
-    # Save temp file
     temp_filename = f"temp_{file.filename}"
     with open(temp_filename, "wb") as buffer:
         buffer.write(await file.read())
@@ -112,36 +153,76 @@ async def recognize_ingredients(file: UploadFile = File(...)):
 @app.post("/generate-living-dish")
 async def generate_living_dish(dish_name: str, motion_type: str = "zoom-in"):
     """
-    Uses Nano Banana (Gemini 3.1 Flash Image) to generate a cinematic dish image with motion.
-    motion_type can be: zoom-in, zoom-out, pan-left, pan-right, orbital
+    Asynchronously starts a living dish generation job via Pub/Sub.
+    Returns a job_id immediately.
     """
+    job_id = str(uuid.uuid4())
+    
+    # Check cache first
+    cache_key = f"dish:{dish_name}:{motion_type}"
     try:
-        # Construct the cinematic prompt for Nano Banana
-        prompt = f"Cinematic shot of {dish_name} from One Piece, Baratie style, vibrant colors, steam rising, high detail, masterpiece. "
-        
-        # Add motion instruction (Nano Banana specific)
-        motion_prompt = {
-            "zoom-in": "Camera slowly zooms into the textures of the dish.",
-            "pan-right": "Cinematic side-scroll pan across the ingredients.",
-            "orbital": "Smooth 360 orbital reveal of the presentation."
-        }.get(motion_type, "Static cinematic shot.")
-        
-        full_prompt = f"{prompt} {motion_prompt}"
-        
-        # TODO: Call the actual Nano Banana / Gemini Image API
-        # Since this is a specialized model, we simulate the return of an animated URL (GIF or MP4)
-        # In a real setup, this would return the generated asset URL
-        
-        mock_video_url = f"https://generated-assets.ai/living-dishes/{dish_name.replace(' ', '_')}_{motion_type}.mp4"
-        
-        return {
-            "dish": dish_name,
-            "motion": motion_type,
-            "video_url": mock_video_url,
-            "style": "One Piece Anime Style"
+        cached_dish = await cache.get(cache_key)
+        if cached_dish:
+            return {"job_id": "cached", "status": "completed", "data": json.loads(cached_dish)}
+    except Exception:
+        pass
+
+    try:
+        # Prepare task message
+        task_data = {
+            "job_id": job_id,
+            "dish_name": dish_name,
+            "motion_type": motion_type
         }
+        message_json = json.dumps(task_data)
+        message_bytes = message_json.encode("utf-8")
+
+        # Publish to Pub/Sub
+        try:
+            future = publisher.publish(topic_path, message_bytes)
+            # future.result() # Optional: wait for confirm
+        except Exception:
+            pass # Fallback logic would go here
+
+        # Initialize job status in Redis
+        await cache.set(f"job:{job_id}", json.dumps({"status": "processing"}), ex=3600)
+
+        return {"job_id": job_id, "status": "queued"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/get-job-status/{job_id}")
+async def get_job_status(job_id: str):
+    """
+    Checks the status of a dish generation job.
+    """
+    status_json = await cache.get(f"job:{job_id}")
+    if not status_json:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    return json.loads(status_json)
+
+# Worker Simulation Endpoint
+@app.post("/worker/process-dish")
+async def worker_process_dish(job_id: str, dish_name: str, motion_type: str):
+    """
+    Simulation of the Nano Banana rendering worker.
+    """
+    import asyncio
+    await asyncio.sleep(5) # Simulate AI rendering time
+    
+    result = {
+        "dish": dish_name,
+        "motion": motion_type,
+        "video_url": f"https://generated-assets.ai/living-dishes/{dish_name.replace(' ', '_')}_{motion_type}.mp4",
+        "style": "One Piece Anime Style"
+    }
+    
+    # Update job status and cache the final result
+    await cache.set(f"job:{job_id}", json.dumps({"status": "completed", "data": result}), ex=3600)
+    await cache.set(f"dish:{dish_name}:{motion_type}", json.dumps(result), ex=86400 * 7)
+    
+    return {"status": "success"}
 
 if __name__ == "__main__":
     import uvicorn

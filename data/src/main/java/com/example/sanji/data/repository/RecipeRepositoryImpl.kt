@@ -12,9 +12,16 @@ import com.example.sanji.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+import com.example.sanji.core.resilience.CircuitBreaker
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
 class RecipeRepositoryImpl(
     private val dao: RecipeDao
 ) : RecipeRepository {
+
+    private val circuitBreaker = CircuitBreaker()
+    private val _isCloudAvailable = MutableStateFlow(true)
 
     private val mockRecipes = listOf(
         RecipeDto(
@@ -145,5 +152,22 @@ class RecipeRepositoryImpl(
                 )
             }
         }
+    }
+
+    override fun observeCloudStatus(): Flow<Boolean> = _isCloudAvailable.asStateFlow()
+
+    // Example of a resilient method using Circuit Breaker
+    suspend fun getAiChefResponse(message: String): String {
+        return circuitBreaker.execute(
+            fallback = { 
+                _isCloudAvailable.value = false
+                "I'm a bit tied up in the kitchen right now! (Offline Mode)" 
+            },
+            action = {
+                // Actual API logic would go here
+                _isCloudAvailable.value = true
+                "A masterful choice!"
+            }
+        )
     }
 }

@@ -6,3 +6,8 @@ google-generativeai
 pydantic
 python-dotenv
 httpx
+redis
+google-cloud-trace
+google-cloud-profiler
+google-cloud-logging
+google-cloud-pubsub

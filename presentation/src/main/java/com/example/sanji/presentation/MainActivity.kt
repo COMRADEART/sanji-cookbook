@@ -3,12 +3,14 @@ package com.example.sanji.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -41,6 +43,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     val navController = rememberNavController()
     val viewModel: RecipeViewModel = hiltViewModel()
+    val isCloudAvailable by viewModel.isCloudAvailable.collectAsState()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -55,6 +58,22 @@ fun MainScreen() {
     )
 
     Scaffold(
+        topBar = {
+            if (!isCloudAvailable) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "OFFLINE MODE: AI CHEF IS TIED UP",
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            }
+        },
         bottomBar = {
             if (currentDestination?.route != Screen.Home.route && 
                 currentDestination?.route?.contains("cook_mode") == false) {
@@ -89,8 +108,7 @@ fun MainScreen() {
                 }
             }
         }
-    )
- { innerPadding ->
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,

@@ -38,7 +38,11 @@ class RecipeViewModel @Inject constructor(
     val groceryList: StateFlow<List<GroceryItem>> = repository.observeGroceryList()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Timer Logic
+    val isCloudAvailable: StateFlow<Boolean> = repository.observeCloudStatus()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    // Living Dish Generation Logic
+
     private val _timerSeconds = MutableStateFlow(0)
     val timerSeconds: StateFlow<Int> = _timerSeconds.asStateFlow()
     private var timerJob: Job? = null
@@ -98,6 +102,34 @@ class RecipeViewModel @Inject constructor(
     fun removeGroceryItem(id: String) {
         viewModelScope.launch {
             repository.removeGroceryItem(id)
+        }
+    }
+
+    // Living Dish Generation Logic
+    private val _livingDishStatus = MutableStateFlow<String?>(null) // null, processing, completed
+    val livingDishStatus: StateFlow<String?> = _livingDishStatus.asStateFlow()
+
+    private val _livingDishUrl = MutableStateFlow<String?>(null)
+    val livingDishUrl: StateFlow<String?> = _livingDishUrl.asStateFlow()
+
+    fun generateLivingDish(dishName: String, motion: String = "zoom-in") {
+        viewModelScope.launch {
+            _livingDishStatus.value = "processing"
+            
+            // 1. Call generate endpoint to get job_id
+            // Simulating API call
+            delay(1000)
+            val jobId = UUID.randomUUID().toString() 
+            
+            // 2. Poll for status (Simulated polling)
+            var progress = 0
+            while (progress < 100) {
+                delay(1500)
+                progress += 33
+            }
+            
+            _livingDishUrl.value = "https://generated-assets.ai/living-dishes/${dishName.replace(" ", "_")}_$motion.mp4"
+            _livingDishStatus.value = "completed"
         }
     }
 
