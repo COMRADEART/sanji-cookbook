@@ -72,11 +72,11 @@ fun RecipeDetailScreen(
                                     text = "🍌 NANO BANANA CINEMATICS", 
                                     style = MaterialTheme.typography.labelSmall, 
                                     color = MaterialTheme.colorScheme.primary,
-                                    letterSpacing = 2.sp
+                                    letterSpacing = 3.sp
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 // In a real app, this would be a VideoPlayer or AsyncImage for GIF
-                                Text("🥘✨", style = MaterialTheme.typography.displayLarge.copy(fontSize = 80.sp))
+                                Text("🥘✨", style = MaterialTheme.typography.displayLarge.copy(fontSize = 90.sp))
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = "DYNAMIC MOTION: ORBITAL REVEAL", 
@@ -90,17 +90,20 @@ fun RecipeDetailScreen(
                 
                 item {
                     Text(
-                        text = "INGREDIENTS",
+                        text = "THE INGREDIENTS",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
                 
                 items(recipe.ingredients) { ingredient ->
                     var isChecked by remember { mutableStateOf(false) }
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { isChecked = !isChecked }.padding(vertical = 4.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isChecked = !isChecked }
+                            .padding(vertical = 8.dp),
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                     ) {
                         Checkbox(
@@ -111,7 +114,7 @@ fun RecipeDetailScreen(
                         Text(
                             text = ingredient,
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).padding(start = 12.dp),
                             textDecoration = if (isChecked) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                         )
                         IconButton(onClick = { viewModel.addIngredientToGrocery(recipe, ingredient) }) {
@@ -125,24 +128,33 @@ fun RecipeDetailScreen(
                 }
                 
                 item {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
+                    // Diable Jambe Red Button
                     Button(
                         onClick = { recipe?.id?.let { onStartCooking(it) } },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = MaterialTheme.shapes.large,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp),
+                        shape = RoundedCornerShape(full = 9999.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB22222)),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("START THE SERVICE", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                        Text(
+                            text = "COMMENCE THE SERVICE", 
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp), 
+                            color = Color.White,
+                            letterSpacing = 2.sp
+                        )
                     }
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
                 
                 item {
                     Text(
-                        text = "INSTRUCTIONS",
+                        text = "CHEF'S INSTRUCTIONS",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
             }

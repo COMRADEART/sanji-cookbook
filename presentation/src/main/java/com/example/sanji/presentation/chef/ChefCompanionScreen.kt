@@ -91,38 +91,38 @@ fun ChefCompanionScreen(viewModel: ChefViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
             ) {
-                LazyColumn(modifier = Modifier.padding(28.dp)) {
+                LazyColumn(modifier = Modifier.padding(24.dp)) {
                     item {
                         Text(
                             text = state.response,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 32.sp
+                            lineHeight = 30.sp
                         )
                     }
                     
                     if (state.chefTips.isNotEmpty()) {
                         item {
                             Spacer(modifier = Modifier.height(32.dp))
-                            HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
                             Spacer(modifier = Modifier.height(24.dp))
                             Text(
                                 text = "CHEF'S WISDOM", 
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary,
-                                letterSpacing = 2.sp
+                                letterSpacing = 3.sp
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             state.chefTips.forEach { tip ->
                                 Text(
                                     text = "• $tip", 
                                     style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                                 )
                             }
                         }

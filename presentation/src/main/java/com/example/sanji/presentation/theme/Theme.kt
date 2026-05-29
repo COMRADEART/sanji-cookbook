@@ -9,63 +9,63 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Baratie Heritage V2 Luxurious Colors
-val MidnightAtlantic = Color(0xFF05163D)
-val MetallicGold = Color(0xFFD4AF37)
-val CrimsonPassion = Color(0xFFD72638)
-val PristineWhite = Color(0xFFFFFFFF)
-val StainlessGray = Color(0xFFF4F7F9)
-val ProfessionalInk = Color(0xFF0D0E10)
-val GlassWhite = Color(0xB3FFFFFF) // 70% opacity for glassmorphism
+// Stitch-Synchronized "Black-Leg" Palette
+val SanjiBlack = Color(0xFF1A1A1B)
+val BaratieGold = Color(0xFFD4AF37)
+val AllBlueTeal = Color(0xFF2C5F78)
+val ChefCream = Color(0xFFF5F5F0)
+val DiableJambeRed = Color(0xFFB22222)
+val HeatOrange = Color(0xFFFF4500)
 
 private val LightColorScheme = lightColorScheme(
-    primary = MidnightAtlantic,
-    onPrimary = Color.White,
-    secondary = MetallicGold,
-    onSecondary = ProfessionalInk,
-    tertiary = CrimsonPassion,
-    surface = PristineWhite,
-    onSurface = ProfessionalInk,
-    background = StainlessGray,
-    onBackground = ProfessionalInk,
-    secondaryContainer = Color(0xFFE5E7EB),
-    tertiaryContainer = GlassWhite
+    primary = SanjiBlack,
+    onPrimary = BaratieGold,
+    secondary = BaratieGold,
+    onSecondary = SanjiBlack,
+    tertiary = AllBlueTeal,
+    surface = ChefCream,
+    onSurface = SanjiBlack,
+    background = ChefCream,
+    onBackground = SanjiBlack,
+    error = DiableJambeRed,
+    secondaryContainer = Color(0xFFE5E5E0),
+    tertiaryContainer = Color.White.copy(alpha = 0.8f) // Refined glass for chat
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = MetallicGold,
-    onPrimary = ProfessionalInk,
-    secondary = MidnightAtlantic,
-    onSecondary = Color.White,
-    tertiary = CrimsonPassion,
-    surface = Color(0xFF0D0E10),
-    onSurface = PristineWhite
+    primary = BaratieGold,
+    onPrimary = SanjiBlack,
+    secondary = SanjiBlack,
+    onSecondary = BaratieGold,
+    tertiary = AllBlueTeal,
+    surface = Color(0xFF121212),
+    onSurface = ChefCream
 )
 
 val BaratieTypography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = FontFamily.Serif, // Playfair Display equivalent
+        fontFamily = FontFamily.Serif, // Playfair Display / Cinzel
         fontWeight = FontWeight.Black,
-        fontSize = 42.sp,
-        lineHeight = 48.sp,
-        letterSpacing = (-0.5).sp
+        fontSize = 44.sp,
+        lineHeight = 52.sp,
+        letterSpacing = (-1).sp
     ),
     titleMedium = TextStyle(
-        fontFamily = FontFamily.SansSerif, // Montserrat equivalent
+        fontFamily = FontFamily.SansSerif, // Montserrat
         fontWeight = FontWeight.Bold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 1.sp
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 2.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily.Default, // Inter equivalent
+        fontFamily = FontFamily.Default, // Lato
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
-        lineHeight = 30.sp // Luxurious 1.6x line height
+        lineHeight = 28.sp
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 1.sp

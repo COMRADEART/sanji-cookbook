@@ -26,20 +26,20 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
     var isServing by remember { mutableStateOf(false) }
     
     val translationY by animateFloatAsState(
-        targetValue = if (isServing) -100f else 0f,
+        targetValue = if (isServing) -120f else 0f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
         label = "servingAnimation"
     )
 
     val scale by animateFloatAsState(
-        targetValue = if (isServing) 1.5f else 1.0f,
-        animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+        targetValue = if (isServing) 1.6f else 1.0f,
+        animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
         label = "scaleAnimation"
     )
 
     LaunchedEffect(isServing) {
         if (isServing) {
-            kotlinx.coroutines.delay(1000)
+            kotlinx.coroutines.delay(1200)
             onNavigateToSearch()
         }
     }
@@ -51,7 +51,7 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
                 Brush.verticalGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                     )
                 )
             ),
@@ -62,22 +62,22 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
             modifier = Modifier.padding(horizontal = 32.dp)
         ) {
             Text(
-                text = "Sanji's Cookbook",
-                style = MaterialTheme.typography.headlineLarge,
+                text = "SANJI'S COOKBOOK",
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 38.sp),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center
             )
             
             Text(
-                text = "THE BLACK LEG KITCHEN • EST. 1997",
+                text = "BARATIE SOUS CHEF • SINCE 1997",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
             
             Box(
                 modifier = Modifier
-                    .size(260.dp)
+                    .size(280.dp)
                     .graphicsLayer(
                         translationY = translationY,
                         scaleX = scale,
@@ -86,47 +86,72 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
                     .clickable { isServing = true },
                 contentAlignment = Alignment.Center
             ) {
-                // Background Glow
+                // Baratie Gold Glow
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(220.dp)
                         .background(
                             Brush.radialGradient(
-                                listOf(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f), Color.Transparent)
+                                listOf(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f), Color.Transparent)
                             )
                         )
                 )
-                Text("🍽️", style = MaterialTheme.typography.displayLarge.copy(fontSize = 100.sp))
+                Text("🍽️", style = MaterialTheme.typography.displayLarge.copy(fontSize = 110.sp))
             }
             
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            Text(
-                text = "TAP TO COMMENCE THE SERVICE",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                letterSpacing = 2.sp
-            )
-
             Spacer(modifier = Modifier.height(64.dp))
+            
+            // Diable Jambe "Start" Button
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .clickable { isServing = true },
+                shape = RoundedCornerShape(full = 9999.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color(0xFFB22222), Color(0xFFFF4500))
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "COMMENCE THE SERVICE",
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        color = Color.White,
+                        letterSpacing = 3.sp
+                    )
+                }
+            }
 
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Sanji Black Wisdom Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
+                Column(modifier = Modifier.padding(28.dp)) {
                     Text(
-                        text = "CHEF'S WISDOM",
+                        text = "CHEF'S MANDATE",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "\"A real cook never wastes a single scrap of food! Respect the ingredients with your life.\"",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic),
-                        lineHeight = 28.sp
+                        text = "\"Ingredients are sacred. A kitchen is a battlefield. Never, ever waste food.\"",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f), 
+                            fontStyle = FontStyle.Italic
+                        ),
+                        lineHeight = 30.sp
                     )
                 }
             }
