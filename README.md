@@ -1,6 +1,15 @@
 # Sanji's Cookbook 👨‍🍳🍽️
 
-A premium, interactive Android cookbook application inspired by the legendary chef of the Straw Hat Pirates, **Vinsmoke Sanji**. This app is designed for both One Piece enthusiasts and aspiring chefs who want a professional, feature-rich cooking companion.
+A premium, interactive Android cookbook application inspired by the legendary chef of the Straw Hat Pirates, **Vinsmoke Sanji**.
+
+## 📖 Table of Contents
+- [🌟 Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🏗️ Architecture Overview](#️-architecture-overview)
+- [🚀 Getting Started](#-getting-started)
+- [🧪 Testing & Quality](#-testing--quality)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [📜 License](#-license)
 
 ## 🌟 Features
 
@@ -47,16 +56,46 @@ The project follows **Clean Architecture** principles to ensure scalability, tes
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- **Android Studio**: Iguana (2023.2.1) or newer.
+- **JDK**: 17 (embedded in Android Studio).
+- **Android SDK**: API 34 (Compile SDK), API 24+ (Minimum SDK).
+- **Gradle**: 8.13.2.
+
+### Installation
 1.  Clone the repository:
     ```bash
     git clone https://github.com/COMRADEART/sanji-cookbook.git
     ```
-2.  Open the project in **Android Studio (Iguana or newer)**.
-3.  Sync Gradle and run the app on an emulator or physical device (API 24+).
+2.  Open the project in Android Studio.
+3.  Sync Gradle and run the app.
+
+## 🧪 Testing & Quality
+The project includes a robust testing and linting setup:
+- **Unit Tests**: Run `./gradlew test` to execute JUnit and Mockito tests.
+- **Linting**:
+  - **Ktlint**: Run `./gradlew ktlintCheck` for Kotlin style checks.
+  - **Detekt**: Run `./gradlew detekt` for static code analysis.
+- **CI/CD**: GitHub Actions automatically runs linting, tests, and builds an APK on every push.
+
+## 🔧 Troubleshooting
+
+### Gradle Sync Issues
+- Ensure you have a stable internet connection.
+- Clean and Rebuild project: `Build > Clean Project` followed by `Build > Rebuild Project`.
+- Invalidate Caches: `File > Invalidate Caches...`.
+
+### "Hilt" Compilation Errors
+- Ensure the `kapt` plugin is correctly configured.
+- Check if `hilt-android-compiler` version matches `hilt-android`.
+
+### App Crashing on Start
+- Check Logcat for any `Room` migration errors. The database schema might have changed without a migration (use `fallbackToDestructiveMigration` for development).
 
 ## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is created for educational and fan purposes. One Piece is a trademark of Eiichiro Oda and Shueisha.
+One Piece is a trademark of Eiichiro Oda and Shueisha. This project is for educational and fan purposes.
 
 ---
 *"A real cook never wastes a single scrap of food!"* — Sanji 💙
