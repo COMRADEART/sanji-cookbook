@@ -46,7 +46,9 @@ import java.io.File
 @Composable
 fun ChefCompanionScreen(
     viewModel: ChefViewModel,
-    onNavigateToMealPlan: () -> Unit
+    onNavigateToMealPlan: () -> Unit,
+    onNavigateToRecipeDetail: (String) -> Unit,
+    onNavigateToCookMode: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var messageText by remember { mutableStateOf("") }
@@ -57,6 +59,19 @@ fun ChefCompanionScreen(
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             listState.animateScrollToItem(state.messages.size - 1)
+        }
+    }
+
+    // Effect to handle direct actions like start_cooking
+    LaunchedEffect(state.uiCommand) {
+        state.uiCommand?.let { cmd ->
+            if (cmd["action"] == "start_cooking") {
+                val id = cmd["recipe_id"] as? String
+                if (id != null) {
+                    onNavigateToCookMode(id)
+                    viewModel.clearUiCommand()
+                }
+            }
         }
     }
 
@@ -411,6 +426,110 @@ fun ChefCompanionScreen(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // --- GENERATIVE UI OVERLAYS ---
+        AnimatedVisibility(
+            visible = state.uiCommand != null && state.uiCommand?.get("action") != "none" && state.uiCommand?.get("action") != "start_cooking",
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            GenerativeUiOverlay(
+                uiCommand = state.uiCommand ?: emptyMap(),
+                onDismiss = { viewModel.clearUiCommand() },
+                onRecipeClick = onNavigateToRecipeDetail
+            )
+        }
+    }
+}
+
+@Composable
+fun GenerativeUiOverlay(
+    uiCommand: Map<String, Any>,
+    onDismiss: () -> Unit,
+    onRecipeClick: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+        tonalElevation = 16.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+    ) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = when (uiCommand["action"]) {
+                        "show_recipe_carousel" -> "CHEF'S RECOMMENDATIONS"
+                        "show_grocery_list" -> "PROVISIONS LIST"
+                        else -> "SYSTEM OVERLAY"
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    letterSpacing = 2.sp
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.Close, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            when (uiCommand["action"]) {
+                "show_recipe_carousel" -> {
+                    val ids = (uiCommand["recipe_ids"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                    RecipeCarouselOverlay(ids, onRecipeClick)
+                }
+                "show_grocery_list" -> {
+                    Text("Sanji is gathering the finest ingredients for you...", style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun RecipeCarouselOverlay(recipeIds: List<String>, onRecipeClick: (String) -> Unit) {
+    // In a real app, we'd fetch these from a repository, but for the mockup 
+    // we use the IDs to simulate.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        recipeIds.forEach { id ->
+            Card(
+                modifier = Modifier
+                    .width(160.dp)
+                    .clickable { onRecipeClick(id) },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("RECIPE #$id", style = MaterialTheme.typography.labelSmall)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Masterpiece $id",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1
+                    )
                 }
             }
         }

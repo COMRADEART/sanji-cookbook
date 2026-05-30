@@ -53,7 +53,8 @@ data class ChatResponse(
     val response: String,
     val emotional_state: String,
     val trust_level: Int,
-    val chef_tips: List<String>
+    val chef_tips: List<String>,
+    val ui_command: Map<String, Any>? = null
 )
 
 data class TranscribeResponse(val text: String, val language: String)

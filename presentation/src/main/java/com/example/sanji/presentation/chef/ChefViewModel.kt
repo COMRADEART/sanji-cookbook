@@ -36,7 +36,8 @@ data class ChefUiState(
     val visionSuggestion: String = "",
     val isTtsEnabled: Boolean = true,
     val generatedRecipe: Recipe? = null,
-    val mealPlans: List<MealPlan> = emptyList()
+    val mealPlans: List<MealPlan> = emptyList(),
+    val uiCommand: Map<String, Any>? = null
 )
 
 @HiltViewModel
@@ -160,6 +161,7 @@ class ChefViewModel @Inject constructor(
                     emotionalState = response.emotional_state,
                     trustLevel = response.trust_level,
                     chefTips = response.chef_tips,
+                    uiCommand = response.ui_command,
                     userProfile = updatedProfile,
                     isProcessing = false
                 ) }
@@ -180,6 +182,10 @@ class ChefViewModel @Inject constructor(
         viewModelScope.launch {
             repository.clearMessages()
         }
+    }
+
+    fun clearUiCommand() {
+        _state.update { it.copy(uiCommand = null) }
     }
 
     // Voice Interaction (STT)

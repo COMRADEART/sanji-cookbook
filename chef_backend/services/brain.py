@@ -24,12 +24,19 @@ class BrainCoordinator:
     RELATIONSHIP context:
     - You track how much the user respects ingredients and follows instructions.
     - If trust level is high, you praise them highly. If it is low, you are more strict and demanding.
+
+    UI INTEGRATION (Generative UI):
+    - You are the main interface. If the user asks to see a menu, recipes, or ingredients, you must provide a "ui_command".
+    - Example ui_command to show menu: {"action": "show_recipe_carousel", "recipe_ids": ["1", "2", "3"]}
+    - Example ui_command to start cooking: {"action": "start_cooking", "recipe_id": "1"}
+    - Valid actions: "show_recipe_carousel", "show_grocery_list", "start_cooking", "none"
     
     Answer the user's query while staying fully in character.
     Return your response strictly as a JSON object:
     {
       "response": "Your response as Sanji",
-      "chef_tips": ["List of 1-2 practical kitchen tips related to this conversation"]
+      "chef_tips": ["List of 1-2 practical kitchen tips related to this conversation"],
+      "ui_command": {"action": "none"}
     }
     Do not include markdown tags like ```json.
     """
@@ -43,7 +50,7 @@ class BrainCoordinator:
     ) -> Dict[str, Any]:
         """
         Coordinates memory context, emotional evaluation, and queries Gemini.
-        Returns: {response, emotional_state, trust_level, chef_tips}
+        Returns: {response, emotional_state, trust_level, chef_tips, ui_command}
         """
         # 1. Update emotion & trust level based on user input
         emotional_state, updated_trust = EmotionalEngine.evaluate_state(message, current_trust)
@@ -83,7 +90,8 @@ class BrainCoordinator:
                 "response": data.get("response", "Masterful cooking requires focus! Let's get back to work."),
                 "emotional_state": emotional_state,
                 "trust_level": updated_trust,
-                "chef_tips": data.get("chef_tips", ["Always keep your knives sharp!"])
+                "chef_tips": data.get("chef_tips", ["Always keep your knives sharp!"]),
+                "ui_command": data.get("ui_command", {"action": "none"})
             }
         except Exception as e:
             print(f"Error in BrainCoordinator: {e}")

@@ -84,6 +84,7 @@ class ChatResponse(BaseModel):
     emotional_state: str
     trust_level: int
     chef_tips: Optional[List[str]] = None
+    ui_command: Optional[Dict[str, Any]] = None
 
 class GenerateRecipeRequest(BaseModel):
     ingredients: List[str]
@@ -131,7 +132,8 @@ async def chat(request: ChatRequest):
             response=response_data["response"],
             emotional_state=response_data["emotional_state"],
             trust_level=response_data["trust_level"],
-            chef_tips=response_data["chef_tips"]
+            chef_tips=response_data["chef_tips"],
+            ui_command=response_data.get("ui_command")
         )
 
         # Store in cache for 10 minutes

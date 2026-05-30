@@ -73,51 +73,11 @@ fun MainScreen() {
                     )
                 }
             }
-        },
-        bottomBar = {
-            val isCooking = currentDestination?.route?.let { route ->
-                route.contains("cook_mode") || 
-                route.contains("prep_area") || 
-                route.contains("cutting_area") || 
-                route.contains("making_section")
-            } ?: false
-
-            if (currentDestination?.route != Screen.Home.route && !isCooking) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    tonalElevation = 8.dp
-                ) {
-                    items.forEach { (screen, label, icon) ->
-                        NavigationBarItem(
-                            icon = { Icon(icon, contentDescription = label) },
-                            label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.secondary,
-                                selectedTextColor = MaterialTheme.colorScheme.secondary,
-                                unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
-                                unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
-                                indicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f)
-                            ),
-                            onClick = {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
-                    }
-                }
-            }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = Screen.ChefCompanion.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
@@ -126,7 +86,7 @@ fun MainScreen() {
                         navController.navigate(Screen.Search.route)
                     },
                     onStartDirectCooking = { recipeId ->
-                        navController.navigate(Screen.PrepArea.createRoute(recipeId))
+                        navController.navigate(Screen.CookMode.createRoute(recipeId))
                     }
                 )
             }
@@ -142,7 +102,13 @@ fun MainScreen() {
                 val chefViewModel: com.example.sanji.presentation.chef.ChefViewModel = hiltViewModel()
                 com.example.sanji.presentation.chef.ChefCompanionScreen(
                     viewModel = chefViewModel,
-                    onNavigateToMealPlan = { navController.navigate(Screen.MealPlan.route) }
+                    onNavigateToMealPlan = { navController.navigate(Screen.MealPlan.route) },
+                    onNavigateToRecipeDetail = { recipeId ->
+                        navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                    },
+                    onNavigateToCookMode = { recipeId ->
+                        navController.navigate(Screen.CookMode.createRoute(recipeId))
+                    }
                 )
             }
             composable(Screen.MealPlan.route) {
