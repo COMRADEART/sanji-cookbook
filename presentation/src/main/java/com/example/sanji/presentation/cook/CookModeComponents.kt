@@ -2,6 +2,7 @@ package com.example.sanji.presentation.cook
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -351,8 +353,12 @@ fun MakingSectionContent(
                     delay(index * 150L)
                     visible = true
                 }
+                
+                // Get a relevant tip from the recipe if it exists
+                val tip = recipe?.chefTips?.getOrNull(index % (recipe.chefTips.size.coerceAtLeast(1)))
+
                 AnimatedVisibility(visible = visible, enter = slideInVertically { it } + fadeIn()) {
-                    ProCookingStepItem(index + 1, step)
+                    ProCookingStepItem(index + 1, step, tip)
                 }
             }
         }
@@ -380,7 +386,7 @@ fun MakingSectionContent(
 }
 
 @Composable
-fun ProCookingStepItem(index: Int, text: String) {
+fun ProCookingStepItem(index: Int, text: String, tip: String? = null) {
     val timeInMinutes = remember(text) {
         val regex = "(\\d+)\\s*(minute|minutes|min|mins)".toRegex(RegexOption.IGNORE_CASE)
         regex.find(text)?.groupValues?.get(1)?.toIntOrNull()
@@ -418,6 +424,28 @@ fun ProCookingStepItem(index: Int, text: String) {
                 style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp),
                 color = Color.White
             )
+
+            if (!tip.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Surface(
+                    color = Color(0xFFC5A059).copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color(0xFFC5A059).copy(alpha = 0.2f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, null, tint = Color(0xFFC5A059), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "CHEF'S TIP: $tip",
+                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                            color = Color(0xFFC5A059)
+                        )
+                    }
+                }
+            }
 
             if (timeInMinutes != null) {
                 Spacer(modifier = Modifier.height(24.dp))
