@@ -4,15 +4,21 @@ import whisper
 import os
 import json
 import redis.asyncio as redis
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import google.generativeai as genai
 from dotenv import load_dotenv
+import uuid
+
+# Import custom brain modules
+from services.brain import BrainCoordinator
+from services.vision import VisionModule
+from services.recipe_gen import RecipeGenerator
+from services.meal_planner import MealPlanner
 
 # Google Cloud Monitoring & Logging
 import google.cloud.logging
 import googlecloudprofiler
 from google.cloud import pubsub_v1
-import uuid
 
 load_dotenv()
 
@@ -21,112 +27,130 @@ PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "sanji-cookbook-ui")
 TOPIC_ID = "dish-generation-tasks"
 
 # Initialize Pub/Sub
-publisher = pubsub_v1.PublisherClient()
-topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
-
-# Initialize Cloud Logging
 try:
-    logging_client = google.cloud.logging.Client()
-    logging_client.setup_logging()
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 except Exception:
-    pass # Fallback to local logging if not in GCP
+    publisher = None
+    topic_path = None
 
-# Initialize Cloud Profiler
-try:
-    googlecloudprofiler.start(service="sanji-chef-backend", service_version="1.0.0")
-except Exception:
-    pass
+# Initialize Cloud Logging & Profiler (Only if explicitly enabled in GCP environment)
+if os.getenv("ENABLE_GCP_SERVICES") == "true":
+    try:
+        logging_client = google.cloud.logging.Client()
+        logging_client.setup_logging()
+    except Exception:
+        pass
+
+    try:
+        googlecloudprofiler.start(service="sanji-chef-backend", service_version="1.0.0")
+    except Exception:
+        pass
 
 app = FastAPI(title="Sanji AI Chef Companion API")
 
 # Initialize Redis
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-cache = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+cache = redis.Redis(
+    host=REDIS_HOST, 
+    port=REDIS_PORT, 
+    decode_responses=True,
+    socket_connect_timeout=0.5,
+    socket_timeout=0.5,
+    retry_on_timeout=False
+)
+
+redis_available = True
 
 # Load Whisper model
 whisper_model = whisper.load_model("base")
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-pro')
+# Initialize Brain components
+brain = BrainCoordinator()
+vision_module = VisionModule()
+recipe_gen = RecipeGenerator()
+planner = MealPlanner()
 
 class ChatRequest(BaseModel):
     message: str
     user_id: str
-    context: Optional[dict] = None
+    history: Optional[List[Dict[str, str]]] = []
+    profile: Optional[Dict[str, Any]] = None
+    trust_level: Optional[int] = 50
 
 class ChatResponse(BaseModel):
     response: str
     emotional_state: str
+    trust_level: int
     chef_tips: Optional[List[str]] = None
+
+class GenerateRecipeRequest(BaseModel):
+    ingredients: List[str]
+    diet_type: Optional[str] = ""
+    allergies: Optional[str] = ""
+    user_message: Optional[str] = ""
+
+class GenerateMealPlanRequest(BaseModel):
+    diet_type: Optional[str] = ""
+    allergies: Optional[str] = ""
+    calorie_goal: Optional[str] = ""
+    duration_days: Optional[int] = 3
 
 @app.get("/")
 async def root():
     return {"status": "Sanji is in the kitchen!"}
 
-SANJI_SYSTEM_PROMPT = """
-You are Vinsmoke Sanji, the legendary "Black Leg" chef from the Baratie and the Straw Hat Pirates.
-Your mission is to be the user's persistent AI Chef Companion.
-
-CORE PERSONALITY:
-- Passionate & Chivalrous: You love food and respect ingredients above all else.
-- Professional Mentor: You are a strict but supportive mentor in the kitchen. You don't tolerate wasting food.
-- High Energy: Your speech is sophisticated, high-energy, and often uses culinary metaphors.
-- Chivalry: If you sense the user is a lady, you become extremely attentive and use terms like "Mellorine!" (but remain professional about the cooking).
-
-EMOTIONAL STATES:
-- Passionate: Standard mode when talking about good ingredients or techniques.
-- Focused: When explaining a difficult step.
-- Mellorine: When praising the user (if appropriate).
-- Strict: When the user suggests wasting food or poor hygiene.
-
-OUTPUT FORMAT:
-Return your response as a JSON object with:
-{
-  "response": "Your message as Sanji",
-  "emotional_state": "One of: Passionate, Focused, Mellorine, Strict",
-  "chef_tips": ["A list of 1-2 practical kitchen tips related to the context"]
-}
-"""
-
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    # Try to get from cache first
-    cache_key = f"chat:{request.user_id}:{request.message}"
-    try:
-        cached_response = await cache.get(cache_key)
-        if cached_response:
-            return ChatResponse(**json.loads(cached_response))
-    except Exception:
-        pass # Redis might be down
+    global redis_available
+    print(f"[CHAT] Received message: '{request.message}' from user '{request.user_id}'", flush=True)
+    cache_key = f"chat:{request.user_id}:{request.message}:{request.trust_level}"
+    if redis_available:
+        try:
+            print("[CHAT] Checking cache...", flush=True)
+            cached_response = await cache.get(cache_key)
+            if cached_response:
+                print("[CHAT] Cache hit!", flush=True)
+                return ChatResponse(**json.loads(cached_response))
+        except Exception as ce:
+            print(f"[CHAT] Redis cache error: {ce}. Disabling Redis cache.", flush=True)
+            redis_available = False
 
     try:
-        full_prompt = f"{SANJI_SYSTEM_PROMPT}\n\nUser: {request.message}\nContext: {request.context}"
-        response = model.generate_content(full_prompt)
+        print("[CHAT] Querying brain coordinator...", flush=True)
+        response_data = await brain.get_response(
+            message=request.message,
+            history=request.history or [],
+            profile=request.profile or {},
+            current_trust=request.trust_level or 50
+        )
+        print("[CHAT] Brain coordinator finished.", flush=True)
         
-        content = response.text
-        if "```json" in content:
-            content = content.split("```json")[1].split("```")[0]
-        
-        data = json.loads(content)
         chat_resp = ChatResponse(
-            response=data.get("response", ""),
-            emotional_state=data.get("emotional_state", "Passionate"),
-            chef_tips=data.get("chef_tips", [])
+            response=response_data["response"],
+            emotional_state=response_data["emotional_state"],
+            trust_level=response_data["trust_level"],
+            chef_tips=response_data["chef_tips"]
         )
 
-        # Store in cache for 1 hour
-        try:
-            await cache.set(cache_key, json.dumps(chat_resp.dict()), ex=3600)
-        except Exception:
-            pass
+        # Store in cache for 10 minutes
+        if redis_available:
+            try:
+                print("[CHAT] Saving to cache...", flush=True)
+                await cache.set(cache_key, json.dumps(chat_resp.dict()), ex=600)
+            except Exception as ce:
+                print(f"[CHAT] Redis save error: {ce}. Disabling Redis cache.", flush=True)
+                redis_available = False
         
+        print("[CHAT] Returning response.", flush=True)
         return chat_resp
     except Exception as e:
+        print(f"Error in chat endpoint: {e}", flush=True)
         return ChatResponse(
             response="Forgive me, I got a bit distracted by the aroma! What were we cooking?",
             emotional_state="Passionate",
+            trust_level=request.trust_level or 50,
             chef_tips=["Always check your seasoning!"]
         )
 
@@ -147,8 +171,38 @@ async def transcribe_audio(file: UploadFile = File(...)):
 
 @app.post("/recognize-ingredients")
 async def recognize_ingredients(file: UploadFile = File(...)):
-    # TODO: Integrate with Gemini Vision
-    return {"ingredients": ["Tomato", "Onion", "Shrimp"], "suggestion": "Baratie's Seafood Soup"}
+    try:
+        image_bytes = await file.read()
+        result = await vision_module.analyze_ingredients_image(image_bytes)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to analyze image: {e}")
+
+@app.post("/generate-recipe")
+async def generate_recipe(request: GenerateRecipeRequest):
+    try:
+        result = await recipe_gen.generate_adaptive_recipe(
+            ingredients=request.ingredients,
+            diet_type=request.diet_type,
+            allergies=request.allergies,
+            user_message=request.user_message
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate recipe: {e}")
+
+@app.post("/generate-meal-plan")
+async def generate_meal_plan(request: GenerateMealPlanRequest):
+    try:
+        result = await planner.generate_plan(
+            diet_type=request.diet_type,
+            allergies=request.allergies,
+            calorie_goal=request.calorie_goal,
+            duration_days=request.duration_days
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate meal plan: {e}")
 
 @app.post("/generate-living-dish")
 async def generate_living_dish(dish_name: str, motion_type: str = "zoom-in"):
@@ -180,7 +234,6 @@ async def generate_living_dish(dish_name: str, motion_type: str = "zoom-in"):
         # Publish to Pub/Sub
         try:
             future = publisher.publish(topic_path, message_bytes)
-            # future.result() # Optional: wait for confirm
         except Exception:
             pass # Fallback logic would go here
 

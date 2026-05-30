@@ -1,6 +1,5 @@
 package com.example.sanji.core.resilience
 
-import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 

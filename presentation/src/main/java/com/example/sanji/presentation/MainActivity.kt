@@ -129,7 +129,17 @@ fun MainScreen() {
             }
             composable(Screen.ChefCompanion.route) {
                 val chefViewModel: com.example.sanji.presentation.chef.ChefViewModel = hiltViewModel()
-                com.example.sanji.presentation.chef.ChefCompanionScreen(viewModel = chefViewModel)
+                com.example.sanji.presentation.chef.ChefCompanionScreen(
+                    viewModel = chefViewModel,
+                    onNavigateToMealPlan = { navController.navigate(Screen.MealPlan.route) }
+                )
+            }
+            composable(Screen.MealPlan.route) {
+                val chefViewModel: com.example.sanji.presentation.chef.ChefViewModel = hiltViewModel()
+                com.example.sanji.presentation.mealplan.MealPlanScreen(
+                    viewModel = chefViewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
             }
             composable(Screen.Favorites.route) {
                 FavoritesScreen(

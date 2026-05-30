@@ -4,6 +4,9 @@ import androidx.room.*
 import com.example.sanji.data.local.entity.RecipeEntity
 import com.example.sanji.data.local.entity.GroceryEntity
 import com.example.sanji.data.local.entity.CustomRecipeEntity
+import com.example.sanji.data.local.entity.ChefMessageEntity
+import com.example.sanji.data.local.entity.UserProfileEntity
+import com.example.sanji.data.local.entity.MealPlanEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -42,4 +45,31 @@ interface RecipeDao {
 
     @Query("SELECT * FROM custom_recipes")
     fun observeCustomRecipes(): Flow<List<CustomRecipeEntity>>
+
+    // Chef Message History
+    @Query("SELECT * FROM chef_messages ORDER BY timestamp ASC")
+    fun observeMessages(): Flow<List<ChefMessageEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMessage(message: ChefMessageEntity)
+
+    @Query("DELETE FROM chef_messages")
+    suspend fun clearMessages()
+
+    // User Profile
+    @Query("SELECT * FROM user_profile WHERE userId = :userId")
+    suspend fun getUserProfile(userId: String): UserProfileEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUserProfile(profile: UserProfileEntity)
+
+    // Meal Plan
+    @Query("SELECT * FROM meal_plans ORDER BY day ASC, id ASC")
+    fun observeMealPlans(): Flow<List<MealPlanEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMealPlan(mealPlan: MealPlanEntity)
+
+    @Query("DELETE FROM meal_plans")
+    suspend fun clearMealPlans()
 }

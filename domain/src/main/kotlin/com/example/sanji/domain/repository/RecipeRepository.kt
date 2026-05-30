@@ -2,6 +2,9 @@ package com.example.sanji.domain.repository
 
 import com.example.sanji.domain.model.Recipe
 import com.example.sanji.domain.model.GroceryItem
+import com.example.sanji.domain.model.ChefMessage
+import com.example.sanji.domain.model.UserProfile
+import com.example.sanji.domain.model.MealPlan
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -21,6 +24,20 @@ interface RecipeRepository {
     // Custom Recipes
     suspend fun addCustomRecipe(recipe: Recipe)
     fun observeCustomRecipes(): Flow<List<Recipe>>
+
+    // Chat messages
+    fun observeMessages(): Flow<List<ChefMessage>>
+    suspend fun saveMessage(message: ChefMessage)
+    suspend fun clearMessages()
+
+    // User profile
+    suspend fun getUserProfile(userId: String = "user_123"): UserProfile
+    suspend fun saveUserProfile(profile: UserProfile)
+
+    // Meal plans
+    fun observeMealPlans(): Flow<List<MealPlan>>
+    suspend fun saveMealPlan(mealPlans: List<MealPlan>)
+    suspend fun clearMealPlans()
 
     // Health / Resilience
     fun observeCloudStatus(): Flow<Boolean>

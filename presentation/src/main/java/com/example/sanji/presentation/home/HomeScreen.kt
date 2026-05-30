@@ -78,7 +78,7 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
             
             Box(
                 modifier = Modifier
-                    .size(280.dp)
+                    .size(320.dp)
                     .graphicsLayer(
                         translationY = translationY,
                         scaleX = scale,
@@ -87,17 +87,11 @@ fun HomeScreen(onNavigateToSearch: () -> Unit) {
                     .clickable { isServing = true },
                 contentAlignment = Alignment.Center
             ) {
-                // Baratie Gold Glow
-                Box(
-                    modifier = Modifier
-                        .size(220.dp)
-                        .background(
-                            Brush.radialGradient(
-                                listOf(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f), Color.Transparent)
-                            )
-                        )
+                Image(
+                    painter = painterResource(id = R.drawable.sanji_holding_dish),
+                    contentDescription = "Chef Sanji serving a masterpiece",
+                    modifier = Modifier.fillMaxSize()
                 )
-                Text("🍽️", style = MaterialTheme.typography.displayLarge.copy(fontSize = 110.sp))
             }
             
             Spacer(modifier = Modifier.height(64.dp))

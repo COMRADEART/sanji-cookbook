@@ -47,15 +47,13 @@ object AppModule {
     }
 
     @Provides
-...
-
     @Singleton
     fun provideRecipeDatabase(@ApplicationContext context: Context): RecipeDatabase {
         return Room.databaseBuilder(
             context,
             RecipeDatabase::class.java,
             "sanji_cookbook_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

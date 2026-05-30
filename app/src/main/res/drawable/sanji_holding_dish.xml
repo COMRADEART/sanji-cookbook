@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="280dp"
+    android:height="280dp"
+    android:viewportWidth="280"
+    android:viewportHeight="280">
+    <!-- Baratie Gold Glow -->
+    <path
+        android:fillColor="#D4AF37"
+        android:fillAlpha="0.2"
+        android:pathData="M140,140m-110,0a110,110 0,1 1,220 0a110,110 0,1 1,-220 0" />
+    
+    <!-- Stylized Sanji Silhouette (Simplified) -->
+    <!-- Head/Hair -->
+    <path
+        android:fillColor="#F0E68C"
+        android:pathData="M130,80 Q140,60 160,70 Q180,80 170,100 L160,110 L130,110 Z" />
+    <!-- Suit -->
+    <path
+        android:fillColor="#1A1A1B"
+        android:pathData="M110,140 L170,140 L180,220 L100,220 Z" />
+    <!-- Plate -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M150,160 Q180,160 180,170 Q180,180 150,180 Q120,180 120,170 Q120,160 150,160 Z" />
+    <!-- Dish (Food) -->
+    <path
+        android:fillColor="#B22222"
+        android:pathData="M140,165 L160,165 L155,155 Z" />
+</vector>

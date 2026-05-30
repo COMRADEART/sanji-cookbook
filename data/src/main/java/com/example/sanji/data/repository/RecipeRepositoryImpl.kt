@@ -4,10 +4,16 @@ import com.example.sanji.data.local.dao.RecipeDao
 import com.example.sanji.data.local.entity.RecipeEntity
 import com.example.sanji.data.local.entity.GroceryEntity
 import com.example.sanji.data.local.entity.CustomRecipeEntity
+import com.example.sanji.data.local.entity.ChefMessageEntity
+import com.example.sanji.data.local.entity.UserProfileEntity
+import com.example.sanji.data.local.entity.MealPlanEntity
 import com.example.sanji.data.mapper.toDomain
 import com.example.sanji.data.remote.dto.RecipeDto
 import com.example.sanji.domain.model.Recipe
 import com.example.sanji.domain.model.GroceryItem
+import com.example.sanji.domain.model.ChefMessage
+import com.example.sanji.domain.model.UserProfile
+import com.example.sanji.domain.model.MealPlan
 import com.example.sanji.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -155,6 +161,94 @@ class RecipeRepositoryImpl(
     }
 
     override fun observeCloudStatus(): Flow<Boolean> = _isCloudAvailable.asStateFlow()
+
+    // Chat messages
+    override fun observeMessages(): Flow<List<ChefMessage>> {
+        return dao.observeMessages().map { entities ->
+            entities.map { ChefMessage(it.id, it.sender, it.text, it.timestamp) }
+        }
+    }
+
+    override suspend fun saveMessage(message: ChefMessage) {
+        dao.insertMessage(ChefMessageEntity(
+            sender = message.sender,
+            text = message.text,
+            timestamp = message.timestamp
+        ))
+    }
+
+    override suspend fun clearMessages() {
+        dao.clearMessages()
+    }
+
+    // User profile
+    override suspend fun getUserProfile(userId: String): UserProfile {
+        val entity = dao.getUserProfile(userId)
+        return if (entity != null) {
+            UserProfile(
+                userId = entity.userId,
+                name = entity.name,
+                dietType = entity.dietType,
+                allergies = entity.allergies,
+                favoriteIngredients = entity.favoriteIngredients,
+                dislikedIngredients = entity.dislikedIngredients,
+                trustLevel = entity.trustLevel
+            )
+        } else {
+            val defaultProfile = UserProfile(userId = userId)
+            saveUserProfile(defaultProfile)
+            defaultProfile
+        }
+    }
+
+    override suspend fun saveUserProfile(profile: UserProfile) {
+        dao.insertUserProfile(UserProfileEntity(
+            userId = profile.userId,
+            name = profile.name,
+            dietType = profile.dietType,
+            allergies = profile.allergies,
+            favoriteIngredients = profile.favoriteIngredients,
+            dislikedIngredients = profile.dislikedIngredients,
+            trustLevel = profile.trustLevel
+        ))
+    }
+
+    // Meal plans
+    override fun observeMealPlans(): Flow<List<MealPlan>> {
+        return dao.observeMealPlans().map { entities ->
+            entities.map {
+                MealPlan(
+                    id = it.id,
+                    day = it.day,
+                    mealType = it.mealType,
+                    title = it.title,
+                    description = it.description,
+                    ingredients = if (it.ingredients.isEmpty()) emptyList() else it.ingredients.split(","),
+                    instructions = if (it.instructions.isEmpty()) emptyList() else it.instructions.split("|"),
+                    prepTime = it.prepTime
+                )
+            }
+        }
+    }
+
+    override suspend fun saveMealPlan(mealPlans: List<MealPlan>) {
+        dao.clearMealPlans()
+        mealPlans.forEach { meal ->
+            dao.insertMealPlan(MealPlanEntity(
+                day = meal.day,
+                mealType = meal.mealType,
+                title = meal.title,
+                description = meal.description,
+                ingredients = meal.ingredients.joinToString(","),
+                instructions = meal.instructions.joinToString("|"),
+                prepTime = meal.prepTime
+            ))
+        }
+    }
+
+    override suspend fun clearMealPlans() {
+        dao.clearMealPlans()
+    }
 
     // Example of a resilient method using Circuit Breaker
     suspend fun getAiChefResponse(message: String): String {
