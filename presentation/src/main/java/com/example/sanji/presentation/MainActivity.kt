@@ -75,8 +75,14 @@ fun MainScreen() {
             }
         },
         bottomBar = {
-            if (currentDestination?.route != Screen.Home.route && 
-                currentDestination?.route?.contains("cook_mode") == false) {
+            val isCooking = currentDestination?.route?.let { route ->
+                route.contains("cook_mode") || 
+                route.contains("prep_area") || 
+                route.contains("cutting_area") || 
+                route.contains("making_section")
+            } ?: false
+
+            if (currentDestination?.route != Screen.Home.route && !isCooking) {
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -115,9 +121,14 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(onNavigateToSearch = {
-                    navController.navigate(Screen.Search.route)
-                })
+                HomeScreen(
+                    onNavigateToSearch = {
+                        navController.navigate(Screen.Search.route)
+                    },
+                    onStartDirectCooking = { recipeId ->
+                        navController.navigate(Screen.PrepArea.createRoute(recipeId))
+                    }
+                )
             }
             composable(Screen.Search.route) {
                 SearchScreen(
@@ -171,8 +182,32 @@ fun MainScreen() {
                 com.example.sanji.presentation.cook.CookModeScreen(
                     recipeId = recipeId,
                     viewModel = viewModel,
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    onFinish = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    }
                 )
+            }
+            // Legacy routes preserved for safety but ideally redirected
+            composable(Screen.PrepArea.route) { backStackEntry ->
+                val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
+                navController.navigate(Screen.CookMode.createRoute(recipeId)) {
+                    popUpTo(Screen.PrepArea.route) { inclusive = true }
+                }
+            }
+            composable(Screen.CuttingArea.route) { backStackEntry ->
+                val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
+                navController.navigate(Screen.CookMode.createRoute(recipeId)) {
+                    popUpTo(Screen.CuttingArea.route) { inclusive = true }
+                }
+            }
+            composable(Screen.MakingSection.route) { backStackEntry ->
+                val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
+                navController.navigate(Screen.CookMode.createRoute(recipeId)) {
+                    popUpTo(Screen.MakingSection.route) { inclusive = true }
+                }
             }
         }
     }

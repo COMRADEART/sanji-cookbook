@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -26,13 +27,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sanji.domain.model.ChefMessage
+import com.example.sanji.presentation.theme.AllBlueTeal
+import com.example.sanji.presentation.theme.BaratieGold
+import com.example.sanji.presentation.theme.DiableJambeRed
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,143 +82,123 @@ fun ChefCompanionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.02f)
-                    )
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
-            // Pinned Status & Trust Header Card
-            Card(
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Pinned Status & Trust Header Card - Refined to be more "Floating"
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Small Emotional Avatar
                         Box(
                             modifier = Modifier
-                                .size(52.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    Brush.sweepGradient(
-                                        colors = when (state.emotionalState) {
-                                            "Mellorine" -> listOf(Color(0xFFFFB6C1), Color(0xFFFF69B4), Color(0xFFFFB6C1))
-                                            "Focused" -> listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                                            "Strict" -> listOf(MaterialTheme.colorScheme.error, Color.Black, MaterialTheme.colorScheme.error)
-                                            else -> listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.tertiary)
-                                        }
-                                    )
-                                )
-                                .padding(2.dp)
-                                .clip(CircleShape)
+                                .size(56.dp)
+                                .graphicsLayer {
+                                    shadowElevation = 8.dp.toPx()
+                                    shape = CircleShape
+                                    clip = true
+                                    val glowColor = when (state.emotionalState) {
+                                        "Mellorine" -> Color(0xFFFF69B4)
+                                        "Focused" -> BaratieGold
+                                        "Strict" -> DiableJambeRed
+                                        else -> AllBlueTeal
+                                    }
+                                    ambientShadowColor = glowColor
+                                    spotShadowColor = glowColor
+                                }
                                 .background(MaterialTheme.colorScheme.surface),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = when (state.emotionalState) {
-                                    "Mellorine" -> "😍"
-                                    "Focused" -> "👨‍🍳"
-                                    "Strict" -> "😠"
-                                    else -> "🔥"
-                                },
-                                fontSize = 24.sp
+                            Image(
+                                painter = painterResource(
+                                    id = when (state.emotionalState) {
+                                        "Mellorine" -> com.example.sanji.presentation.R.drawable.sanji_mellorine
+                                        "Focused" -> com.example.sanji.presentation.R.drawable.sanji_focused
+                                        "Strict", "Passionate" -> com.example.sanji.presentation.R.drawable.sanji_passionate
+                                        "Night" -> com.example.sanji.presentation.R.drawable.sanji_night
+                                        else -> com.example.sanji.presentation.R.drawable.sanji_default
+                                    }
+                                ),
+                                contentDescription = "Chef Sanji Avatar",
+                                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                contentScale = ContentScale.Crop
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Chef Sanji",
-                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                                style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "${state.emotionalState} State",
+                                text = state.emotionalState.uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = MaterialTheme.colorScheme.secondary,
+                                letterSpacing = 2.sp
                             )
                         }
 
-                        // TTS Toggle Button
-                        IconButton(
-                            onClick = { viewModel.toggleTts(!state.isTtsEnabled) }
-                        ) {
-                            Icon(
-                                imageVector = if (state.isTtsEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                                contentDescription = "TTS Switch",
-                                tint = if (state.isTtsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                            )
-                        }
-
-                        // Meal Planner Shortcut
-                        IconButton(
-                            onClick = onNavigateToMealPlan
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.RestaurantMenu,
-                                contentDescription = "Meal Plan",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-
-                        // Clear Chat Button
-                        IconButton(
-                            onClick = { viewModel.clearChatHistory() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Clear History",
-                                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                            )
+                        // Toolbar Icons
+                        Row {
+                            IconButton(onClick = { viewModel.toggleTts(!state.isTtsEnabled) }) {
+                                Icon(
+                                    imageVector = if (state.isTtsEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                                    contentDescription = "TTS",
+                                    tint = if (state.isTtsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                )
+                            }
+                            IconButton(onClick = onNavigateToMealPlan) {
+                                Icon(Icons.Default.RestaurantMenu, "Meal Plan", tint = MaterialTheme.colorScheme.secondary)
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Rapport / Trust Indicator
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Rapport: ",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                    // Rapport / Trust Indicator - Sleeker
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "RAPPORT",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "${state.trustLevel}%",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
                         LinearProgressIndicator(
                             progress = state.trustLevel / 100f,
                             modifier = Modifier
-                                .weight(1f)
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp)),
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .clip(CircleShape),
                             color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "${state.trustLevel}%",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.secondary
+                            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
                         )
                     }
                 }
@@ -223,66 +210,26 @@ fun ChefCompanionScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 if (state.messages.isEmpty()) {
                     item {
-                        var visible by remember { mutableStateOf(false) }
-                        LaunchedEffect(Unit) { visible = true }
-
-                        AnimatedVisibility(
-                            visible = visible,
-                            enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(initialOffsetY = { it / 2 })
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 48.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 32.dp, horizontal = 8.dp),
-                                shape = RoundedCornerShape(24.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                border = BorderStroke(1.dp, Brush.linearGradient(listOf(MaterialTheme.colorScheme.secondary, Color.Transparent)))
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .background(
-                                            Brush.verticalGradient(
-                                                listOf(MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f), Color.Transparent)
-                                            )
-                                        )
-                                        .padding(24.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "👨‍🍳",
-                                        fontSize = 48.sp,
-                                        modifier = Modifier.padding(bottom = 16.dp)
-                                    )
-                                    Text(
-                                        text = "Baratie Welcome",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        letterSpacing = 2.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Text(
-                                        text = state.response,
-                                        style = MaterialTheme.typography.headlineSmall.copy(
-                                            fontWeight = FontWeight.Light,
-                                            fontStyle = FontStyle.Italic,
-                                            lineHeight = 32.sp
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Spacer(modifier = Modifier.height(24.dp))
-                                    Text(
-                                        text = "Snap ingredients, plan meals, or just ask for a masterpiece.",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("🍴", fontSize = 48.sp)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = state.response,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
                             }
                         }
                     }
@@ -293,48 +240,40 @@ fun ChefCompanionScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = if (isChef) Arrangement.Start else Arrangement.End
                         ) {
-                            Card(
+                            // Message Bubble as "Order Ticket"
+                            Surface(
                                 shape = RoundedCornerShape(
                                     topStart = 16.dp,
                                     topEnd = 16.dp,
-                                    bottomEnd = if (isChef) 16.dp else 4.dp,
-                                    bottomStart = if (isChef) 4.dp else 16.dp
+                                    bottomEnd = if (isChef) 16.dp else 2.dp,
+                                    bottomStart = if (isChef) 2.dp else 16.dp
                                 ),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (isChef) {
-                                        MaterialTheme.colorScheme.surfaceVariant
-                                    } else {
-                                        MaterialTheme.colorScheme.primary
-                                    }
-                                ),
-                                modifier = Modifier.padding(
-                                    start = if (isChef) 0.dp else 40.dp,
-                                    end = if (isChef) 40.dp else 0.dp
-                                )
+                                color = if (isChef) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primary,
+                                border = if (isChef) BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) else null,
+                                modifier = Modifier.widthIn(max = 300.dp),
+                                tonalElevation = if (isChef) 1.dp else 0.dp
                             ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
+                                Column(modifier = Modifier.padding(14.dp)) {
                                     Text(
                                         text = message.text,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                                        color = if (isChef) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = if (isChef) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
                                     )
                                     
-                                    // If this is a chef response and has chef tips, show them
                                     if (isChef && message.text == state.response && state.chefTips.isNotEmpty()) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f))
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "CHEF'S TIPS:",
+                                            text = "CHEF'S NOTES",
                                             style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.secondary
                                         )
                                         state.chefTips.forEach { tip ->
                                             Text(
                                                 text = "• $tip",
-                                                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                             )
                                         }
                                     }
@@ -344,171 +283,61 @@ fun ChefCompanionScreen(
                     }
                 }
 
-                // If processing, show loading indicator in message thread
                 if (state.isProcessing) {
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Card(
-                                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                modifier = Modifier.padding(end = 40.dp)
-                            ) {
-                                Box(modifier = Modifier.padding(12.dp)) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                            }
-                        }
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp).padding(4.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
                 }
 
                 // Recognized Ingredients panel inside chat flow
                 if (state.recognizedIngredients.isNotEmpty()) {
                     item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.9f)),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f))
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                            Column(modifier = Modifier.padding(20.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.tertiary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(Icons.Default.AutoAwesome, null, tint = MaterialTheme.colorScheme.tertiary)
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = "Ingredients Identified",
-                                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                        fontWeight = FontWeight.Bold
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.tertiary
                                     )
                                 }
                                 
-                                if (state.visionSuggestion.isNotEmpty()) {
-                                    Text(
-                                        text = state.visionSuggestion,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    )
-                                }
-                                
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
                                 
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState()),
+                                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     state.recognizedIngredients.forEach { ingredient ->
                                         SuggestionChip(
                                             onClick = {},
-                                            label = { Text(ingredient) }
+                                            label = { Text(ingredient) },
+                                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                                labelColor = MaterialTheme.colorScheme.tertiary
+                                            )
                                         )
                                     }
                                 }
                                 
-                                Spacer(modifier = Modifier.height(12.dp))
-                                
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
-                                ) {
-                                    Button(
-                                        onClick = { viewModel.generateRecipeFromRecognized() },
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                                    ) {
-                                        Text("Generate Recipe")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Generated custom recipe display inside chat flow
-                if (state.generatedRecipe != null) {
-                    val recipe = state.generatedRecipe!!
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f))
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = recipe.title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = recipe.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row {
-                                    Text(
-                                        text = "🕒 Prep: ${recipe.prepTime}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Text(
-                                        text = "📂 Category: ${recipe.category}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "Ingredients:",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                recipe.ingredients.forEach { ing ->
-                                    Text(text = "• $ing", style = MaterialTheme.typography.bodySmall)
-                                }
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "Instructions:",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                recipe.instructions.forEachIndexed { index, step ->
-                                    Text(text = "${index + 1}. $step", style = MaterialTheme.typography.bodySmall)
-                                }
                                 Spacer(modifier = Modifier.height(16.dp))
+                                
                                 Button(
-                                    onClick = { viewModel.saveGeneratedRecipe() },
+                                    onClick = { viewModel.generateRecipeFromRecognized() },
                                     modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                                 ) {
-                                    Icon(Icons.Default.Save, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Save to Cookbook")
+                                    Text("CONSTRUCT RECIPE")
                                 }
                             }
                         }
@@ -516,80 +345,71 @@ fun ChefCompanionScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Bottom Control and Input Panel
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Bottom Control and Input Panel - Refined
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(32.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 4.dp,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
             ) {
-                // Photo Attachment Button
-                IconButton(
-                    onClick = { galleryLauncher.launch("image/*") }
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Photo,
-                        contentDescription = "Upload Photo",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                    IconButton(onClick = { galleryLauncher.launch("image/*") }) {
+                        Icon(Icons.Default.AddAPhoto, "Photo", tint = MaterialTheme.colorScheme.primary)
+                    }
 
-                // Text/Chat Input Field
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Talk to the chef...") },
-                    maxLines = 3,
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                if (messageText.isNotBlank()) {
-                                    viewModel.onSendMessage(messageText)
-                                    messageText = ""
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send,
-                                contentDescription = "Send",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    shape = RoundedCornerShape(24.dp)
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Microphone Input Button
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (state.isRecording) {
-                                Color.Red.copy(alpha = 0.2f)
-                            } else {
-                                Color.Transparent
-                            }
+                    TextField(
+                        value = messageText,
+                        onValueChange = { messageText = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Consult the chef...") },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
                         ),
-                    contentAlignment = Alignment.Center
-                ) {
+                        maxLines = 4
+                    )
+
                     IconButton(
                         onClick = {
-                            if (state.isRecording) {
-                                viewModel.stopVoiceInteraction()
-                            } else {
-                                viewModel.startVoiceInteraction()
+                            if (messageText.isNotBlank()) {
+                                viewModel.onSendMessage(messageText)
+                                messageText = ""
                             }
-                        }
+                        },
+                        enabled = messageText.isNotBlank()
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Mic,
-                            contentDescription = "Voice Input",
-                            tint = if (state.isRecording) Color.Red else MaterialTheme.colorScheme.primary
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Send",
+                            tint = if (messageText.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                         )
+                    }
+
+                    Surface(
+                        modifier = Modifier.size(44.dp),
+                        shape = CircleShape,
+                        color = if (state.isRecording) Color.Red.copy(alpha = 0.1f) else Color.Transparent,
+                        onClick = {
+                            if (state.isRecording) viewModel.stopVoiceInteraction()
+                            else viewModel.startVoiceInteraction()
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (state.isRecording) Icons.Default.Stop else Icons.Default.Mic,
+                                contentDescription = "Voice",
+                                tint = if (state.isRecording) Color.Red else MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }

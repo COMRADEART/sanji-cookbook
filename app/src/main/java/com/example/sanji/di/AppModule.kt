@@ -85,4 +85,10 @@ object AppModule {
     fun provideSearchRecipesUseCase(repository: RecipeRepository): SearchRecipesUseCase {
         return SearchRecipesUseCase(repository)
     }
+
+    @Provides
+    @Singleton
+    fun provideGetRecipeByIdUseCase(repository: RecipeRepository): GetRecipeByIdUseCase {
+        return GetRecipeByIdUseCase(repository)
+    }
 }

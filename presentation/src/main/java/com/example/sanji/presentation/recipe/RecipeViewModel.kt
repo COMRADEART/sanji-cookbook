@@ -18,6 +18,7 @@ import javax.inject.Inject
 class RecipeViewModel @Inject constructor(
     private val repository: RecipeRepository,
     private val getRecipesUseCase: GetRecipesUseCase,
+    private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
     private val searchRecipesUseCase: SearchRecipesUseCase,
@@ -56,6 +57,10 @@ class RecipeViewModel @Inject constructor(
         viewModelScope.launch {
             _recipes.value = getRecipesUseCase()
         }
+    }
+
+    suspend fun getRecipeById(id: String): Recipe? {
+        return getRecipeByIdUseCase(id)
     }
 
     fun onSearchQueryChange(query: String) {

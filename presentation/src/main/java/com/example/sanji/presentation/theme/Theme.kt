@@ -48,27 +48,48 @@ val BaratieTypography = Typography(
         fontWeight = FontWeight.Black,
         fontSize = 44.sp,
         lineHeight = 52.sp,
-        letterSpacing = (-1).sp
+        letterSpacing = (-1.5).sp // Tighter for more impact
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = (-0.5).sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = FontFamily.SansSerif, // Montserrat
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.5.sp
     ),
     titleMedium = TextStyle(
         fontFamily = FontFamily.SansSerif, // Montserrat
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        letterSpacing = 2.sp
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 1.5.sp // Elegant spacing for menus
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default, // Lato
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 26.sp,
+        letterSpacing = 0.2.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default, // Lato
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
-        lineHeight = 28.sp
+        fontSize = 14.sp,
+        lineHeight = 22.sp
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
+        fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 1.sp
+        letterSpacing = 1.2.sp
     )
 )
 
